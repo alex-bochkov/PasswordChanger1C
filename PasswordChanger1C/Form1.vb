@@ -23,14 +23,12 @@ Public Class MainForm
 
     Public Sub New()
 
-        ' This call is required by the designer.
+
         InitializeComponent()
 
         FileIB.Text = "C:\Users\Alex\Desktop\1Cv8.1CD"
 
         ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
-
-
 
     End Sub
 
