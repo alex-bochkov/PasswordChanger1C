@@ -170,16 +170,16 @@ Public Class MainForm
 
                 Dim AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
 
-                If AuthStructure(0)(7) = "0" Then
+                If AuthStructure(0)(7).ToString = "0" Then
                     'нет авторизации 1С
                     SQLUser.PassHash = "нет авторизации 1С"
                 Else
                     If AuthStructure(0).Count = 17 Then
-                        SQLUser.PassHash = AuthStructure(0)(11)
-                        SQLUser.PassHash2 = AuthStructure(0)(12)
+                        SQLUser.PassHash = AuthStructure(0)(11).ToString
+                        SQLUser.PassHash2 = AuthStructure(0)(12).ToString
                     Else
-                        SQLUser.PassHash = AuthStructure(0)(12)
-                        SQLUser.PassHash2 = AuthStructure(0)(13)
+                        SQLUser.PassHash = AuthStructure(0)(12).ToString
+                        SQLUser.PassHash2 = AuthStructure(0)(13).ToString
                     End If
                 End If
 
