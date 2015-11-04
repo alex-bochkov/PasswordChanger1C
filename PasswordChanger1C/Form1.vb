@@ -158,32 +158,40 @@ Public Class MainForm
 
             While reader.Read
 
-                Dim SQLUser = New SQLUser
-                SQLUser.ID = reader.GetSqlBinary(0)
-                SQLUser.Name = reader.GetString(1)
-                SQLUser.Descr = reader.GetString(2)
-                SQLUser.Data = reader.GetSqlBinary(3)
-                SQLUser.AdmRole = IIf(BitConverter.ToBoolean(reader.GetSqlBinary(4), 0), "Да", "")
+                Try
 
-                SQLUser.IDStr = New Guid(SQLUser.ID).ToString
-                SQLUser.DataStr = AccessFunctions.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
+                    Dim SQLUser = New SQLUser
+                    SQLUser.ID = reader.GetSqlBinary(0)
+                    SQLUser.Name = reader.GetString(1)
+                    SQLUser.Descr = reader.GetString(2)
+                    SQLUser.Data = reader.GetSqlBinary(3)
+                    SQLUser.AdmRole = IIf(BitConverter.ToBoolean(reader.GetSqlBinary(4), 0), "Да", "")
 
-                Dim AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+                    SQLUser.IDStr = New Guid(SQLUser.ID).ToString
+                    SQLUser.DataStr = AccessFunctions.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
 
-                If AuthStructure(0)(7).ToString = "0" Then
-                    'нет авторизации 1С
-                    SQLUser.PassHash = "нет авторизации 1С"
-                Else
-                    If AuthStructure(0).Count = 17 Then
-                        SQLUser.PassHash = AuthStructure(0)(11).ToString
-                        SQLUser.PassHash2 = AuthStructure(0)(12).ToString
+                    Dim AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+
+                    If AuthStructure(0)(7).ToString = "0" Then
+                        'нет авторизации 1С
+                        SQLUser.PassHash = "нет авторизации 1С"
                     Else
-                        SQLUser.PassHash = AuthStructure(0)(12).ToString
-                        SQLUser.PassHash2 = AuthStructure(0)(13).ToString
+                        If AuthStructure(0).Count = 17 Then
+                            SQLUser.PassHash = AuthStructure(0)(11).ToString
+                            SQLUser.PassHash2 = AuthStructure(0)(12).ToString
+                        Else
+                            SQLUser.PassHash = AuthStructure(0)(12).ToString
+                            SQLUser.PassHash2 = AuthStructure(0)(13).ToString
+                        End If
                     End If
-                End If
 
-                SQLUsers.Add(SQLUser)
+                    SQLUsers.Add(SQLUser)
+
+                Catch ex As Exception
+
+                End Try
+
+
 
             End While
 
