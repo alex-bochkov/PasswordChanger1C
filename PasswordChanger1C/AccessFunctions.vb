@@ -26,6 +26,7 @@ Module AccessFunctions
         Dim TableName As String
         Dim Sign As String
         Dim length As Integer
+        Dim lengthLong As Long
         Dim version1 As Integer
         Dim version2 As Integer
         Dim version As Integer
@@ -36,6 +37,7 @@ Module AccessFunctions
         Dim Records As List(Of Dictionary(Of String, Object))
         Dim BlockData As Integer
         Dim BlockBlob As Integer
+        Dim TableDefinition As String
     End Structure
 
     Function ReadPage(reader As BinaryReader, Bytes() As Byte) As PageParams
@@ -98,7 +100,132 @@ Module AccessFunctions
 
     End Function
 
-    Function ReadInfoBase(FileName As String, TableNameUsers As String) As PageParams
+    Function ReadPage83(reader As BinaryReader, Bytes() As Byte, PageSize As Integer, TableUsersName As String) As PageParams
+
+        Dim Page = New PageParams
+        Dim PageType As Integer = BitConverter.ToInt32(Bytes, 0)
+        If PageType = 64796 Then
+            '0xFD1C small storage table
+            '???
+        ElseIf PageType = 130332 Then
+            '0x01FD1C  large storage table
+            '???
+        End If
+
+        'Encoding.UTF8.GetString(Bytes, 0, 8)
+
+        'unsigned Int object_type; //0xFD1C или 0x01FD1C 
+        'unsigned Int version1; 
+        'unsigned Int version2; 
+        'unsigned Int version3; 
+        'unsigned Long int length; //64-разрядное целое! 
+        'unsigned Int pages[]; 
+
+        'Page.Sign = BitConverter.ToInt32(Bytes, 0)
+
+        Page.version1 = BitConverter.ToInt32(Bytes, 12)
+        Page.version2 = BitConverter.ToInt32(Bytes, 16)
+        Page.version = BitConverter.ToInt32(Bytes, 20)
+        Page.lengthLong = BitConverter.ToInt64(Bytes, 16)
+
+        Dim Index = 24
+        Page.PagesNum = New List(Of Integer)
+        Page.StorageTables = New List(Of StorageTable)
+
+        'Получим номера страниц размещения 
+        While True
+            Dim blk = BitConverter.ToInt32(Bytes, Index)
+            If blk = 0 Then
+                Exit While
+            End If
+            Page.PagesNum.Add(blk)
+            Index = Index + 4
+            If Index > 4092 Then 'TODO!
+                Exit While
+            End If
+        End While
+
+        Dim PagesCountTableStructure = Page.PagesNum.Count
+        Dim BytesTableStructure() As Byte = New Byte(PagesCountTableStructure * PageSize - 1) {}
+
+        Dim BytesTableStructureBlockNumbers() As Byte = New Byte(PagesCountTableStructure * PageSize - 1) {}
+
+
+        Dim i = 0
+        For Each blk In Page.PagesNum
+            Dim bytesBlock() As Byte = New Byte(PageSize - 1) {}
+            reader.BaseStream.Seek(blk * PageSize, SeekOrigin.Begin)
+            reader.Read(bytesBlock, 0, PageSize)
+            For a = 0 To PageSize - 1
+                BytesTableStructure(i + a) = bytesBlock(a)
+            Next
+            i = i + PageSize
+        Next
+
+        'Dim TotalBlocks = BitConverter.ToInt32(BytesTableStructure, 294)
+        i = 256
+        Dim Pos = 0
+        While 1 = 1
+            Dim NextBlock = BitConverter.ToInt32(BytesTableStructure, i)
+
+            For j = 7 To 256
+                BytesTableStructureBlockNumbers(Pos) = BytesTableStructure(j + i - 1)
+                Pos = Pos + 1
+            Next
+
+            If NextBlock = 0 Then
+                Exit While
+            End If
+
+            i = i + 256
+
+        End While
+
+        Dim TotalBlocks = BitConverter.ToInt32(BytesTableStructureBlockNumbers, 32)
+        Dim PagesWithTableSchema = New List(Of Integer)
+
+        For j = 1 To TotalBlocks
+
+            Dim BlockNumber = BitConverter.ToInt32(BytesTableStructureBlockNumbers, 32 + j * 4)
+            PagesWithTableSchema.Add(BlockNumber)
+            ' Dim aaa = 0
+
+        Next
+
+        For Each TablePageNumber In PagesWithTableSchema
+
+            Dim Position = TablePageNumber * 256
+
+            Dim NextBlock = BitConverter.ToInt32(BytesTableStructure, Position)
+            Dim StringLen = BitConverter.ToInt16(BytesTableStructure, Position + 4)
+
+            Dim StrDefinition = Encoding.UTF8.GetString(BytesTableStructure, Position + 6, StringLen)
+
+            While NextBlock > 0
+
+                Position = NextBlock * 256
+
+                NextBlock = BitConverter.ToInt32(BytesTableStructure, Position)
+                StringLen = BitConverter.ToInt16(BytesTableStructure, Position + 4)
+
+                StrDefinition = StrDefinition + Encoding.UTF8.GetString(BytesTableStructure, Position + 6, StringLen)
+
+
+            End While
+
+            Dim TableDefinition = ParserServices.ParsesClass.ParseString(StrDefinition)
+            If TableDefinition(0)(0) = """" + TableUsersName + """" Then
+                Page.TableDefinition = StrDefinition
+            End If
+
+
+        Next
+
+        Return Page
+
+    End Function
+
+    Function ReadInfoBase(FileName As String, TableNameUsers As String, ByRef DatabaseVersion As String) As PageParams
 
         Dim fs As New FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read)
         Dim reader As New BinaryReader(fs)
@@ -108,69 +235,152 @@ Module AccessFunctions
         reader.Read(bytesBlock, 0, 4096)
 
         Dim Str = Encoding.UTF8.GetString(bytesBlock, 0, 8)
-        Dim DBSize = BitConverter.ToInt32(bytesBlock, 8)
+        Dim V1 = bytesBlock(8).ToString
+        Dim V2 = bytesBlock(9).ToString
+        Dim V3 = bytesBlock(10).ToString
+        DatabaseVersion = V1 + "." + V2 + "." + V3
 
-        'второй блок пропускаем
-        reader.Read(bytesBlock, 0, 4096)
+        Dim DBSize = BitConverter.ToInt32(bytesBlock, 12)
+        Dim PageSize = BitConverter.ToInt32(bytesBlock, 20)
 
-        'корневой блок
-        reader.Read(bytesBlock, 0, 4096)
+        If DatabaseVersion.StartsWith("8.3") Then
 
-        Dim Param = ReadPage(reader, bytesBlock)
+            bytesBlock = New Byte(PageSize - 1) {}
 
-        Dim Language = ""
-        Dim NumberOfTables = 0
-        Dim HeaderTables As List(Of Integer) = New List(Of Integer)
+            'второй блок пропускаем
+            reader.Read(bytesBlock, 0, PageSize)
 
-        Dim i = 0
-        For Each ST In Param.StorageTables
+            'корневой блок
+            reader.Read(bytesBlock, 0, PageSize)
 
-            Dim bytesStorageTables() As Byte = New Byte(4096 * ST.DataBlocks.Count - 1) {}
+            Dim Param = ReadPage83(reader, bytesBlock, PageSize, TableNameUsers)
 
-            For Each DB In ST.DataBlocks
-                Dim TempBlock() As Byte = New Byte(4095) {}
-                reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin)
-                reader.Read(TempBlock, 0, 4096)
-                For Each ElemByte In TempBlock
-                    bytesStorageTables(i) = ElemByte
-                    i = i + 1
+            Dim Language = ""
+            Dim NumberOfTables = 0
+            Dim HeaderTables As List(Of Integer) = New List(Of Integer)
+
+            Dim i = 0
+            For Each ST In Param.StorageTables
+
+                'If ST.DataBlocks.Count = 0 Then
+                '    Continue For
+                'End If
+
+                Dim bytesStorageTables() As Byte = New Byte(PageSize * ST.DataBlocks.Count - 1) {}
+
+                For Each DB In ST.DataBlocks
+                    Dim TempBlock() As Byte = New Byte(PageSize - 1) {}
+                    reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin)
+                    reader.Read(TempBlock, 0, PageSize)
+                    For Each ElemByte In TempBlock
+                        bytesStorageTables(i) = ElemByte
+                        i = i + 1
+                    Next
                 Next
+
+                Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32)
+                NumberOfTables = BitConverter.ToInt32(bytesStorageTables, 32)
+
+                For i = 0 To NumberOfTables - 1
+                    Dim PageNum = BitConverter.ToInt32(bytesStorageTables, 36 + i * 4)
+                    HeaderTables.Add(PageNum)
+                Next
+
             Next
 
-            Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32)
-            NumberOfTables = BitConverter.ToInt32(bytesStorageTables, 32)
+            'прочитаем первые страницы таблиц
+            For Each HT In HeaderTables
 
-            For i = 0 To NumberOfTables - 1
-                Dim PageNum = BitConverter.ToInt32(bytesStorageTables, 36 + i * 4)
-                HeaderTables.Add(PageNum)
+
+
+                reader.BaseStream.Seek(HT * PageSize, SeekOrigin.Begin)
+                reader.Read(bytesBlock, 0, PageSize)
+
+                Dim PageHeader = ReadPage(reader, bytesBlock)
+                PageHeader.Fields = New List(Of TableFields)
+
+                For Each ST In PageHeader.StorageTables
+                    For Each DB In ST.DataBlocks
+
+                        ReadDataFromTable(reader, DB, bytesBlock, PageHeader, TableNameUsers)
+
+                        If PageHeader.TableName = TableNameUsers Then
+                            reader.Close()
+                            Return PageHeader
+                        End If
+                    Next
+                Next
+
             Next
 
-        Next
 
-        'прочитаем первые страницы таблиц
-        For Each HT In HeaderTables
+            Dim a = 0
 
-
-
-            reader.BaseStream.Seek(HT * 4096, SeekOrigin.Begin)
+        Else
+            'второй блок пропускаем
             reader.Read(bytesBlock, 0, 4096)
 
-            Dim PageHeader = ReadPage(reader, bytesBlock)
-            PageHeader.Fields = New List(Of TableFields)
+            'корневой блок
+            reader.Read(bytesBlock, 0, 4096)
 
-            For Each ST In PageHeader.StorageTables
+            Dim Param = ReadPage(reader, bytesBlock)
+
+            Dim Language = ""
+            Dim NumberOfTables = 0
+            Dim HeaderTables As List(Of Integer) = New List(Of Integer)
+
+            Dim i = 0
+            For Each ST In Param.StorageTables
+
+                Dim bytesStorageTables() As Byte = New Byte(4096 * ST.DataBlocks.Count - 1) {}
+
                 For Each DB In ST.DataBlocks
-
-                    ReadDataFromTable(reader, DB, bytesBlock, PageHeader, TableNameUsers)
-
-                    If PageHeader.TableName = TableNameUsers Then
-                        reader.Close()
-                        Return PageHeader
-                    End If
+                    Dim TempBlock() As Byte = New Byte(4095) {}
+                    reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin)
+                    reader.Read(TempBlock, 0, 4096)
+                    For Each ElemByte In TempBlock
+                        bytesStorageTables(i) = ElemByte
+                        i = i + 1
+                    Next
                 Next
+
+                Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32)
+                NumberOfTables = BitConverter.ToInt32(bytesStorageTables, 32)
+
+                For i = 0 To NumberOfTables - 1
+                    Dim PageNum = BitConverter.ToInt32(bytesStorageTables, 36 + i * 4)
+                    HeaderTables.Add(PageNum)
+                Next
+
             Next
 
-        Next
+            'прочитаем первые страницы таблиц
+            For Each HT In HeaderTables
+
+
+
+                reader.BaseStream.Seek(HT * 4096, SeekOrigin.Begin)
+                reader.Read(bytesBlock, 0, 4096)
+
+                Dim PageHeader = ReadPage(reader, bytesBlock)
+                PageHeader.Fields = New List(Of TableFields)
+
+                For Each ST In PageHeader.StorageTables
+                    For Each DB In ST.DataBlocks
+
+                        ReadDataFromTable(reader, DB, bytesBlock, PageHeader, TableNameUsers)
+
+                        If PageHeader.TableName = TableNameUsers Then
+                            reader.Close()
+                            Return PageHeader
+                        End If
+                    Next
+                Next
+
+            Next
+        End If
+
+
 
         reader.Close()
         Return Nothing

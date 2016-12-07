@@ -43,6 +43,7 @@ Partial Class MainForm
         Me.ButtonSetRepoPassword = New System.Windows.Forms.Button()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
+        Me.LabelDatabaseVersion = New System.Windows.Forms.Label()
         Me.NewPassword = New System.Windows.Forms.TextBox()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.TextBox3 = New System.Windows.Forms.TextBox()
@@ -70,6 +71,7 @@ Partial Class MainForm
         Me.LinkLabel1 = New System.Windows.Forms.LinkLabel()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.LinkLabel2 = New System.Windows.Forms.LinkLabel()
+        Me.LabelDatabaseVersionRepo = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
@@ -120,7 +122,7 @@ Partial Class MainForm
         Me.ListViewUsers.FullRowSelect = True
         Me.ListViewUsers.Location = New System.Drawing.Point(9, 50)
         Me.ListViewUsers.Name = "ListViewUsers"
-        Me.ListViewUsers.Size = New System.Drawing.Size(723, 320)
+        Me.ListViewUsers.Size = New System.Drawing.Size(723, 302)
         Me.ListViewUsers.TabIndex = 14
         Me.ListViewUsers.UseCompatibleStateImageBehavior = False
         Me.ListViewUsers.View = System.Windows.Forms.View.Details
@@ -243,6 +245,7 @@ Partial Class MainForm
         '
         'TabPage1
         '
+        Me.TabPage1.Controls.Add(Me.LabelDatabaseVersion)
         Me.TabPage1.Controls.Add(Me.NewPassword)
         Me.TabPage1.Controls.Add(Me.Label2)
         Me.TabPage1.Controls.Add(Me.TextBox3)
@@ -259,6 +262,15 @@ Partial Class MainForm
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "Файловая ИБ"
         Me.TabPage1.UseVisualStyleBackColor = True
+        '
+        'LabelDatabaseVersion
+        '
+        Me.LabelDatabaseVersion.AutoSize = True
+        Me.LabelDatabaseVersion.Location = New System.Drawing.Point(11, 355)
+        Me.LabelDatabaseVersion.Name = "LabelDatabaseVersion"
+        Me.LabelDatabaseVersion.Size = New System.Drawing.Size(132, 13)
+        Me.LabelDatabaseVersion.TabIndex = 26
+        Me.LabelDatabaseVersion.Text = "Internal database version: "
         '
         'NewPassword
         '
@@ -431,6 +443,7 @@ Partial Class MainForm
         '
         'TabPage3
         '
+        Me.TabPage3.Controls.Add(Me.LabelDatabaseVersionRepo)
         Me.TabPage3.Controls.Add(Me.TextBox1)
         Me.TabPage3.Controls.Add(Me.RepoUserList)
         Me.TabPage3.Controls.Add(Me.Label4)
@@ -468,7 +481,7 @@ Partial Class MainForm
         Me.RepoUserList.FullRowSelect = True
         Me.RepoUserList.Location = New System.Drawing.Point(9, 50)
         Me.RepoUserList.Name = "RepoUserList"
-        Me.RepoUserList.Size = New System.Drawing.Size(723, 319)
+        Me.RepoUserList.Size = New System.Drawing.Size(723, 304)
         Me.RepoUserList.TabIndex = 17
         Me.RepoUserList.UseCompatibleStateImageBehavior = False
         Me.RepoUserList.View = System.Windows.Forms.View.Details
@@ -524,6 +537,15 @@ Partial Class MainForm
         Me.LinkLabel2.TabIndex = 18
         Me.LinkLabel2.TabStop = True
         Me.LinkLabel2.Text = "© Aleksey.Bochkov"
+        '
+        'LabelDatabaseVersionRepo
+        '
+        Me.LabelDatabaseVersionRepo.AutoSize = True
+        Me.LabelDatabaseVersionRepo.Location = New System.Drawing.Point(12, 357)
+        Me.LabelDatabaseVersionRepo.Name = "LabelDatabaseVersionRepo"
+        Me.LabelDatabaseVersionRepo.Size = New System.Drawing.Size(132, 13)
+        Me.LabelDatabaseVersionRepo.TabIndex = 27
+        Me.LabelDatabaseVersionRepo.Text = "Internal database version: "
         '
         'MainForm
         '
@@ -599,4 +621,6 @@ Partial Class MainForm
     Friend WithEvents LinkLabel1 As LinkLabel
     Friend WithEvents Label3 As Label
     Friend WithEvents LinkLabel2 As LinkLabel
+    Friend WithEvents LabelDatabaseVersion As Label
+    Friend WithEvents LabelDatabaseVersionRepo As Label
 End Class

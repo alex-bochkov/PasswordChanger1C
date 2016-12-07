@@ -26,13 +26,17 @@ Public Class MainForm
 
         InitializeComponent()
 
-        FileIB.Text = "C:\Users\Alex\Desktop\1Cv8.1CD"
+        FileIB.Text = "C:\Users\Alex\Documents\1222\1Cv8.1CD"
+        'FileIB.Text = "E:\bases1C\DemoHRM_3.0\1Cv8.1CD"
 
         ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
 
     End Sub
 
     Private Shared Function IAmTheAdministrator() As Boolean
+
+        'TEMP
+        Return True
 
         If My.User.IsAuthenticated() Then
 
@@ -74,7 +78,11 @@ Public Class MainForm
 
         Try
 
-            TableParams = AccessFunctions.ReadInfoBase(FileIB.Text, "V8USERS")
+            Dim StrDatabaseVersion = ""
+
+            TableParams = AccessFunctions.ReadInfoBase(FileIB.Text, "V8USERS", StrDatabaseVersion)
+
+            LabelDatabaseVersion.Text = "Internal database version: " + StrDatabaseVersion
 
         Catch ex As Exception
 
@@ -316,7 +324,11 @@ Public Class MainForm
 
         Try
 
-            TableParams = AccessFunctions.ReadInfoBase(Repo1C.Text, "USERS")
+            Dim StrDatabaseVersion = ""
+
+            TableParams = AccessFunctions.ReadInfoBase(Repo1C.Text, "USERS", StrDatabaseVersion)
+
+            LabelDatabaseVersionRepo.Text = "Internal database version: " + StrDatabaseVersion
 
         Catch ex As Exception
 
@@ -491,4 +503,6 @@ Public Class MainForm
         End If
 
     End Sub
+
+
 End Class
