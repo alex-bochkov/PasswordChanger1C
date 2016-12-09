@@ -13,43 +13,24 @@ Module DatabaseAccess838
         'корневой блок
         reader.Read(bytesBlock, 0, PageSize)
 
-        Dim Param = ReadPage83(reader, bytesBlock, PageSize, TableNameUsers)
-        Param.PageSize = PageSize
+        Dim Param = FindTableDefinition(reader, bytesBlock, PageSize, TableNameUsers)
 
-        CommonModule.ParseTableDefinition(Param)
-
-        ReadDataPage83(Param, Param.TableName, Param.BlockData, Param.BlockBlob, reader, PageSize)
+        ReadAllRecordsFromStoragePages(Param, reader)
 
         Return Param
 
     End Function
 
-    Function ReadPage83(reader As BinaryReader, Bytes() As Byte, PageSize As Integer, TableUsersName As String) As PageParams
+    Private Function FindTableDefinition(reader As BinaryReader, Bytes() As Byte, PageSize As Integer, TableUsersName As String) As PageParams
 
         Dim Page As PageParams = ReadObjectPageDefinition(reader, Bytes, PageSize)
         Page.BinaryData = ReadAllStoragePagesForObject(reader, Page)
+        Page.PageSize = PageSize
 
         Dim PagesCountTableStructure = Page.PagesNum.Count
         Dim BytesTableStructure() As Byte = Page.BinaryData
 
-        Dim BytesTableStructureBlockNumbers() As Byte = New Byte(PagesCountTableStructure * PageSize - 1) {}
-
-        Dim i = 256
-        Dim Pos = 0
-        While 1 = 1
-            Dim NextBlock = BitConverter.ToInt32(BytesTableStructure, i)
-            For j = 7 To 256
-                BytesTableStructureBlockNumbers(Pos) = BytesTableStructure(j + i - 1)
-                Pos = Pos + 1
-            Next
-
-            If NextBlock = 0 Then
-                Exit While
-            End If
-
-            i = NextBlock * 256
-
-        End While
+        Dim BytesTableStructureBlockNumbers() As Byte = GetCleanDataFromBlob(1, PagesCountTableStructure * PageSize, Page.BinaryData)
 
         Dim TotalBlocks = BitConverter.ToInt32(BytesTableStructureBlockNumbers, 32)
         Dim PagesWithTableSchema = New List(Of Integer)
@@ -85,6 +66,7 @@ Module DatabaseAccess838
             Dim TableDefinition = ParserServices.ParsesClass.ParseString(StrDefinition)
             If TableDefinition(0)(0).ToString.ToUpper = """" + TableUsersName + """" Then
                 Page.TableDefinition = StrDefinition
+                CommonModule.ParseTableDefinition(Page)
                 Exit For
             End If
         Next
@@ -93,12 +75,16 @@ Module DatabaseAccess838
 
     End Function
 
-    Sub ReadDataPage83(ByRef PageHeader As PageParams, table As String, block As Integer, BlockBlob As Integer, reader As BinaryReader, PageSize As Integer)
+    Private Sub ReadAllRecordsFromStoragePages(ByRef PageHeader As PageParams, reader As BinaryReader)
+
+        Dim FirstPage As Integer = PageHeader.BlockData
+        Dim BlockBlob As Integer = PageHeader.BlockBlob
+        Dim PageSize As Integer = PageHeader.PageSize
 
         PageHeader.Records = New List(Of Dictionary(Of String, Object))
 
         Dim bytesBlock1() As Byte = New Byte(PageSize - 1) {}
-        reader.BaseStream.Seek(block * PageSize, SeekOrigin.Begin)
+        reader.BaseStream.Seek(FirstPage * PageSize, SeekOrigin.Begin)
         reader.Read(bytesBlock1, 0, PageSize)
 
         Dim DataPage As PageParams = ReadObjectPageDefinition(reader, bytesBlock1, PageSize)
@@ -173,7 +159,17 @@ Module DatabaseAccess838
                         Dict.Add("DATA_SIZE", DataSize)
                     End If
 
-                    Dim BytesValTemp = GetBlodData83(BlockBlob, DataPos, DataSize, reader, PageSize)
+                    'Dim BytesValTemp = GetBlodDataByIndex(BlockBlob, DataPos, DataSize, reader, PageSize)
+                    Dim BytesBlobBlock() As Byte = New Byte(PageSize - 1) {}
+                    reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin)
+                    reader.Read(BytesBlobBlock, 0, PageSize)
+
+                    Dim BlobPage As PageParams = ReadObjectPageDefinition(reader, BytesBlobBlock, PageSize)
+                    BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage)
+
+                    Dim BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData)
+                    '***************************************
+
 
                     Dim DataKey() As Byte = New Byte(0) {}
                     Dim DataKeySize As Integer = 0
@@ -240,24 +236,12 @@ Module DatabaseAccess838
 
     End Sub
 
+    Private Function GetCleanDataFromBlob(Dataindex As Integer, Datasize As Integer, bytesBlock As Byte()) As Byte()
 
-    Function GetBlodData83(BlockBlob As Integer, Dataindex As Integer, Datasize As Integer, reader As BinaryReader, PageSize As Integer) As Byte()
-
-        Dim bytesBlock1() As Byte = New Byte(PageSize - 1) {}
-        reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin)
-        reader.Read(bytesBlock1, 0, PageSize)
-
-        Dim DataPage As PageParams = ReadObjectPageDefinition(reader, bytesBlock1, PageSize)
-        DataPage.BinaryData = ReadAllStoragePagesForObject(reader, DataPage)
-
-        Dim bytesBlock() As Byte = DataPage.BinaryData
-
-        Dim i = 0
-
-        Dim NextBlock = Dataindex
+        Dim NextBlock = 999 'any number gt 0
         Dim Pos = Dataindex * 256
         Dim ByteBlock() As Byte = New Byte(Datasize - 1) {}
-        i = 0
+        Dim i = 0
         While NextBlock > 0
 
             NextBlock = BitConverter.ToInt32(bytesBlock, Pos)
@@ -275,7 +259,6 @@ Module DatabaseAccess838
         Return ByteBlock
 
     End Function
-
 
     Private Function ReadAllStoragePagesForObject(reader As BinaryReader, Page As PageParams) As Byte()
 
@@ -297,7 +280,7 @@ Module DatabaseAccess838
 
     End Function
 
-    Function ReadObjectPageDefinition(reader As BinaryReader, Bytes() As Byte, Optional PageSize As Integer = 4096) As PageParams
+    Private Function ReadObjectPageDefinition(reader As BinaryReader, Bytes() As Byte, Optional PageSize As Integer = 4096) As PageParams
 
         'struct {
         '    unsigned int object_type; //0xFD1C или 0x01FD1C 
