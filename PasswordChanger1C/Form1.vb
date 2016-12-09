@@ -78,11 +78,9 @@ Public Class MainForm
 
         Try
 
-            Dim StrDatabaseVersion = ""
+            TableParams = AccessFunctions.ReadInfoBase(FileIB.Text, "V8USERS")
 
-            TableParams = AccessFunctions.ReadInfoBase(FileIB.Text, "V8USERS", StrDatabaseVersion)
-
-            LabelDatabaseVersion.Text = "Internal database version: " + StrDatabaseVersion
+            LabelDatabaseVersion.Text = "Internal database version: " + TableParams.DatabaseVersion
 
         Catch ex As Exception
 
@@ -176,7 +174,7 @@ Public Class MainForm
                     SQLUser.AdmRole = IIf(BitConverter.ToBoolean(reader.GetSqlBinary(4), 0), "Да", "")
 
                     SQLUser.IDStr = New Guid(SQLUser.ID).ToString
-                    SQLUser.DataStr = AccessFunctions.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
+                    SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
 
                     Dim AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
 
@@ -268,12 +266,12 @@ Public Class MainForm
 
                         Str = Str + vbNewLine + SQLUser.Name
 
-                        Dim NewHash = AccessFunctions.EncryptStringSHA1(NewPassSQL.Text.Trim)
+                        Dim NewHash = CommonModule.EncryptStringSHA1(NewPassSQL.Text.Trim)
 
                         Dim NewData = SQLUser.DataStr.Replace(SQLUser.PassHash, """" + NewHash + """")
                         NewData = NewData.Replace(SQLUser.PassHash2, """" + NewHash + """")
 
-                        Dim NewBytes = AccessFunctions.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData)
+                        Dim NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData)
 
                         command.Parameters.Clear()
                         command.Parameters.Add(New SqlParameter("@user", SqlDbType.Binary)).Value = SQLUser.ID
@@ -324,11 +322,9 @@ Public Class MainForm
 
         Try
 
-            Dim StrDatabaseVersion = ""
+            TableParams = AccessFunctions.ReadInfoBase(Repo1C.Text, "USERS")
 
-            TableParams = AccessFunctions.ReadInfoBase(Repo1C.Text, "USERS", StrDatabaseVersion)
-
-            LabelDatabaseVersionRepo.Text = "Internal database version: " + StrDatabaseVersion
+            LabelDatabaseVersionRepo.Text = "Internal database version: " + TableParams.DatabaseVersion
 
         Catch ex As Exception
 
@@ -443,13 +439,13 @@ Public Class MainForm
 
                             Str = Str + vbNewLine + Row("NAME").ToString
 
-                            Dim NewHash = AccessFunctions.EncryptStringSHA1(NewPassword.Text.Trim)
+                            Dim NewHash = CommonModule.EncryptStringSHA1(NewPassword.Text.Trim)
 
                             Dim OldData = Row("DATA").ToString
                             Dim NewData = OldData.Replace(Row("UserPassHash"), """" + NewHash + """")
                             NewData = NewData.Replace(Row("UserPassHash2"), """" + NewHash + """")
 
-                            Dim NewBytes = AccessFunctions.EncodePasswordStructure(NewData, Row("DATA_KEYSIZE"), Row("DATA_KEY"))
+                            Dim NewBytes = CommonModule.EncodePasswordStructure(NewData, Row("DATA_KEYSIZE"), Row("DATA_KEY"))
 
                             AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, DirectCast(Row("ID"), Byte()), NewBytes, Row("DATA_POS"), Row("DATA_SIZE"))
 
