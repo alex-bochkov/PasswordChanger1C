@@ -482,13 +482,13 @@ Public Class MainForm
 
     Private Sub LinkLabel2_Click(sender As Object, e As EventArgs) Handles LinkLabel2.Click
 
-        Process.Start("http://infostart.ru/profile/15301/")
+        Process.Start("https://github.com/alekseybochkov/")
 
     End Sub
 
     Private Sub LinkLabel1_Click(sender As Object, e As EventArgs) Handles LinkLabel1.Click
 
-        Process.Start("http://infostart.ru/public/398166/")
+        Process.Start("https://github.com/alekseybochkov/PasswordChanger1C")
 
     End Sub
 
@@ -503,6 +503,5 @@ Public Class MainForm
         End If
 
     End Sub
-
 
 End Class

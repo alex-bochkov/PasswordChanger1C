@@ -62,6 +62,7 @@ Partial Class MainForm
         Me.ColumnHeader4 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.ColumnHeader5 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
         Me.TabPage3 = New System.Windows.Forms.TabPage()
+        Me.LabelDatabaseVersionRepo = New System.Windows.Forms.Label()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.RepoUserList = New System.Windows.Forms.ListView()
         Me.RepoUserGUID = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
@@ -71,7 +72,6 @@ Partial Class MainForm
         Me.LinkLabel1 = New System.Windows.Forms.LinkLabel()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.LinkLabel2 = New System.Windows.Forms.LinkLabel()
-        Me.LabelDatabaseVersionRepo = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
@@ -265,6 +265,7 @@ Partial Class MainForm
         '
         'LabelDatabaseVersion
         '
+        Me.LabelDatabaseVersion.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.LabelDatabaseVersion.AutoSize = True
         Me.LabelDatabaseVersion.Location = New System.Drawing.Point(11, 355)
         Me.LabelDatabaseVersion.Name = "LabelDatabaseVersion"
@@ -459,6 +460,16 @@ Partial Class MainForm
         Me.TabPage3.Text = "Хранилище конфигурации"
         Me.TabPage3.UseVisualStyleBackColor = True
         '
+        'LabelDatabaseVersionRepo
+        '
+        Me.LabelDatabaseVersionRepo.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.LabelDatabaseVersionRepo.AutoSize = True
+        Me.LabelDatabaseVersionRepo.Location = New System.Drawing.Point(12, 357)
+        Me.LabelDatabaseVersionRepo.Name = "LabelDatabaseVersionRepo"
+        Me.LabelDatabaseVersionRepo.Size = New System.Drawing.Size(132, 13)
+        Me.LabelDatabaseVersionRepo.TabIndex = 27
+        Me.LabelDatabaseVersionRepo.Text = "Internal database version: "
+        '
         'TextBox1
         '
         Me.TextBox1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
@@ -512,10 +523,10 @@ Partial Class MainForm
         Me.LinkLabel1.AutoSize = True
         Me.LinkLabel1.Location = New System.Drawing.Point(230, 460)
         Me.LinkLabel1.Name = "LinkLabel1"
-        Me.LinkLabel1.Size = New System.Drawing.Size(166, 13)
+        Me.LinkLabel1.Size = New System.Drawing.Size(282, 13)
         Me.LinkLabel1.TabIndex = 18
         Me.LinkLabel1.TabStop = True
-        Me.LinkLabel1.Text = "http://infostart.ru/public/398166/"
+        Me.LinkLabel1.Text = "https://github.com/alekseybochkov/PasswordChanger1C"
         '
         'Label3
         '
@@ -537,15 +548,6 @@ Partial Class MainForm
         Me.LinkLabel2.TabIndex = 18
         Me.LinkLabel2.TabStop = True
         Me.LinkLabel2.Text = "© Aleksey.Bochkov"
-        '
-        'LabelDatabaseVersionRepo
-        '
-        Me.LabelDatabaseVersionRepo.AutoSize = True
-        Me.LabelDatabaseVersionRepo.Location = New System.Drawing.Point(12, 357)
-        Me.LabelDatabaseVersionRepo.Name = "LabelDatabaseVersionRepo"
-        Me.LabelDatabaseVersionRepo.Size = New System.Drawing.Size(132, 13)
-        Me.LabelDatabaseVersionRepo.TabIndex = 27
-        Me.LabelDatabaseVersionRepo.Text = "Internal database version: "
         '
         'MainForm
         '
