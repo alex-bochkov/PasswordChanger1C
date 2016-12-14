@@ -149,7 +149,12 @@ Module AccessFunctions
 
     End Sub
 
-    Sub WritePasswordIntoInfoBaseIB(FileName As String, PageHeader As PageParams, UserID As Byte(), NewData As Byte(), DataPos As Integer, DataSize As Integer)
+    Sub WritePasswordIntoInfoBaseIB(FileName As String, PageHeader As PageParams, UserID As Byte(), OldData As Byte(), NewData As Byte(), DataPos As Integer, DataSize As Integer)
+
+        If PageHeader.DatabaseVersion.StartsWith("8.3") Then
+            DatabaseAccess838.WritePasswordIntoInfoBaseIB(FileName, PageHeader, UserID, OldData, NewData, DataPos, DataSize)
+            Return
+        End If
 
         Dim PageSize As Integer = PageHeader.PageSize
 
@@ -165,30 +170,30 @@ Module AccessFunctions
 
         DataPage = ReadPage(reader, bytesBlock1)
 
-            Dim TotalBlocks = 0
-            For Each ST In DataPage.StorageTables
-                TotalBlocks = TotalBlocks + ST.DataBlocks.Count
-            Next
+        Dim TotalBlocks = 0
+        For Each ST In DataPage.StorageTables
+            TotalBlocks = TotalBlocks + ST.DataBlocks.Count
+        Next
 
-            bytesBlock = New Byte(PageSize * TotalBlocks - 1) {}
+        bytesBlock = New Byte(PageSize * TotalBlocks - 1) {}
 
-            Dim i = 0
-            For Each ST In DataPage.StorageTables
+        Dim i = 0
+        For Each ST In DataPage.StorageTables
 
-                For Each DB In ST.DataBlocks
-                    Dim TempBlock() As Byte = New Byte(PageSize - 1) {}
-                    reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin)
-                    reader.Read(TempBlock, 0, PageSize)
-                    For Each ElemByte In TempBlock
-                        bytesBlock(i) = ElemByte
-                        i = i + 1
-                    Next
+            For Each DB In ST.DataBlocks
+                Dim TempBlock() As Byte = New Byte(PageSize - 1) {}
+                reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin)
+                reader.Read(TempBlock, 0, PageSize)
+                For Each ElemByte In TempBlock
+                    bytesBlock(i) = ElemByte
+                    i = i + 1
                 Next
             Next
+        Next
 
 
 
-            reader.Close()
+        reader.Close()
 
 
         Dim NextBlock = DataPos
@@ -238,64 +243,6 @@ Module AccessFunctions
 
 
         writer.Close()
-
-    End Sub
-
-
-    Sub WritePasswordIntoInfoBaseIB83(FileName As String, PageHeader As PageParams, UserID As Byte(), NewData As Byte(), DataPos As Integer, DataSize As Integer)
-
-        Dim PageSize As Integer = PageHeader.PageSize
-
-        'Dim fs As New FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write)
-        'Dim reader As New BinaryReader(fs)
-
-        'Dim bytesBlock1() As Byte = New Byte(PageSize - 1) {}
-        'reader.BaseStream.Seek(PageHeader.BlockBlob * PageSize, SeekOrigin.Begin)
-        'reader.Read(bytesBlock1, 0, PageSize)
-
-        'Dim DataPage As PageParams = Nothing
-        'Dim bytesBlock() As Byte
-
-        'DataPage = ReadObjectPage83(reader, bytesBlock1, PageSize)
-        'bytesBlock = DataPage.BinaryData
-        'reader.Close()
-
-
-        'Dim NextBlock = DataPos
-        'Dim Pos = DataPos * 256
-        'Dim ii = 0
-        'While NextBlock > 0
-
-        '    NextBlock = BitConverter.ToInt32(bytesBlock, Pos)
-        '    Dim BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4)
-
-        '    For j = 0 To BlockSize - 1
-        '        bytesBlock(Pos + 6 + j) = NewData(ii)
-        '        ii = ii + 1
-        '    Next
-        '    Pos = NextBlock * 256
-        'End While
-
-        'fs = New FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write)
-        'Dim writer As New BinaryWriter(fs)
-
-        'ii = 0
-        'For Each ST In DataPage.StorageTables
-        '    For Each DB In ST.DataBlocks
-        '        Dim TempBlock() As Byte = New Byte(PageSize - 1) {}
-        '        For j = 0 To PageSize - 1
-        '            TempBlock(j) = bytesBlock(ii)
-        '            ii = ii + 1
-        '        Next
-
-        '        writer.Seek(DB * PageSize, SeekOrigin.Begin)
-        '        writer.Write(TempBlock)
-
-        '    Next
-        'Next
-
-
-        'writer.Close()
 
     End Sub
 

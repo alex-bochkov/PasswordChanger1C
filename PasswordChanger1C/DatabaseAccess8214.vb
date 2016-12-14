@@ -385,6 +385,7 @@ Module DatabaseAccess8214
 
                     Dict.Add("DATA_KEYSIZE", DataKeySize)
                     Dict.Add("DATA_KEY", DataKey)
+                    Dict.Add("DATA_BINARY", BytesValTemp)
 
                 ElseIf Field.Type = "NT" Then
                     'Строка неограниченной длины

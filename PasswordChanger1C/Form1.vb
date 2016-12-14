@@ -441,13 +441,14 @@ Public Class MainForm
 
                             Dim NewHash = CommonModule.EncryptStringSHA1(NewPassword.Text.Trim)
 
+                            Dim OldDataBinary = Row("DATA_BINARY")
                             Dim OldData = Row("DATA").ToString
                             Dim NewData = OldData.Replace(Row("UserPassHash"), """" + NewHash + """")
                             NewData = NewData.Replace(Row("UserPassHash2"), """" + NewHash + """")
 
                             Dim NewBytes = CommonModule.EncodePasswordStructure(NewData, Row("DATA_KEYSIZE"), Row("DATA_KEY"))
 
-                            AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, DirectCast(Row("ID"), Byte()), NewBytes, Row("DATA_POS"), Row("DATA_SIZE"))
+                            AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, DirectCast(Row("ID"), Byte()), OldDataBinary, NewBytes, Row("DATA_POS"), Row("DATA_SIZE"))
 
                         End If
 

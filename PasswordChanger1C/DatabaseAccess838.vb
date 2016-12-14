@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.Text
+Imports System.Linq
 
 Module DatabaseAccess838
 
@@ -178,6 +179,7 @@ Module DatabaseAccess838
 
                     Dict.Add("DATA_KEYSIZE", DataKeySize)
                     Dict.Add("DATA_KEY", DataKey)
+                    Dict.Add("DATA_BINARY", BytesValTemp)
 
                 ElseIf Field.Type = "NT" Then
                     'Строка неограниченной длины
@@ -326,5 +328,37 @@ Module DatabaseAccess838
         Return Page
 
     End Function
+
+    Sub WritePasswordIntoInfoBaseIB(FileName As String, PageHeader As PageParams, UserID As Byte(), OldData As Byte(), NewData As Byte(), DataPos As Integer, DataSize As Integer)
+
+        Dim fs As New FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write)
+        Dim reader As New BinaryReader(fs)
+
+        Dim PageSize = PageHeader.PageSize
+        Dim BlockBlob = PageHeader.BlockBlob
+
+        Dim BytesBlobBlock() As Byte = New Byte(PageSize - 1) {}
+        reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin)
+        reader.Read(BytesBlobBlock, 0, PageSize)
+
+        Dim BlobPage As PageParams = ReadObjectPageDefinition(reader, BytesBlobBlock, PageSize)
+        BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage)
+
+        Dim BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData)
+
+        If BytesValTemp.SequenceEqual(OldData) Then
+
+
+
+
+        Else
+            reader.Close()
+            Throw New System.Exception("Информация в БД была изменена другим процессом! Прочитайте список пользователей заново.")
+        End If
+
+        reader.Close()
+
+    End Sub
+
 
 End Module
