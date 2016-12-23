@@ -57,6 +57,9 @@ Module AccessFunctions
 
         Dim DBSize = BitConverter.ToInt32(bytesBlock, 12)
         Dim PageSize = BitConverter.ToInt32(bytesBlock, 20)
+        If PageSize = 0 Then
+            PageSize = 4096
+        End If
 
         reader.BaseStream.Seek(PageSize, SeekOrigin.Begin)
 

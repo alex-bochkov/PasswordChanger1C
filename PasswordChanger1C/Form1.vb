@@ -33,21 +33,18 @@ Public Class MainForm
 
     End Sub
 
-    Private Shared Function IAmTheAdministrator() As Boolean
+    Private Shared Function ShowWarning() As Boolean
 
         'TEMP
-        Return True
+        'Return True
 
-        If My.User.IsAuthenticated() Then
-
-            If My.User.IsInRole(ApplicationServices.BuiltInRole.Administrator) Then
-                Return True
-            End If
-
-        End If
-
-        Dim Rez = MsgBox("Похоже, что у Вас нет административных прав на этом компьютере. " + vbNewLine +
-               "Уверены, что понимаете как использовать это приложение?", MsgBoxStyle.YesNo, "Ой, вот ведь незадача :)")
+        Dim Rez = MsgBox("Запрещается использование приложения для несанкционированного доступа к данным!" + vbNewLine +
+               "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + vbNewLine +
+               "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + vbNewLine +
+               "Несанкционированный доступ к информации преследуются по ст. 1301 Гражданского кодекса РФ, ст. 7.12 Кодекса Российской Федерации " + vbNewLine +
+               "об административных правонарушениях, ст. 146 Уголовного кодекса РФ." + vbNewLine +
+               "Продолжить?",
+                         MsgBoxStyle.YesNo, "Правила использования")
 
         If Rez = MsgBoxResult.Yes Then
             Return True
@@ -240,7 +237,7 @@ Public Class MainForm
 
         Dim Rez = MsgBox("Внесение изменений в базу данных может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + vbNewLine +
                          "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + vbNewLine +
-                         "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "Уверены?")
+                         "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "ВНИМАНИЕ!")
 
         If Not Rez = MsgBoxResult.Yes Then
             Exit Sub
@@ -418,9 +415,9 @@ Public Class MainForm
             MsgBox("Не выделены строки с пользователями для сброса пароля!", MsgBoxStyle.Information, "Не выделены строки с пользователями")
         Else
 
-            Dim Rez = MsgBox("Внесение изменений в файл информационной базы может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + vbNewLine +
+            Dim Rez = MsgBox("Внесение изменений в файл информационной базы может привести к непредсказуемым последствиям, вплоть до полного разрушения базы! " + vbNewLine +
                             "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + vbNewLine +
-                            "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "Уверены?")
+                            "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "ВНИМАНИЕ!")
 
             If Not Rez = MsgBoxResult.Yes Then
                 Exit Sub
@@ -443,14 +440,16 @@ Public Class MainForm
 
                             Dim OldDataBinary = Row("DATA_BINARY")
                             Dim OldData = Row("DATA").ToString
-                            Dim NewData = OldData.Replace(Row("UserPassHash"), """" + NewHash + """")
+                            Dim NewData = OldData.Replace(Row("UserPassHash"), """" + NewHash2 + """")
                             NewData = NewData.Replace(Row("UserPassHash2"), """" + NewHash2 + """")
+
+
 
                             Dim NewBytes = CommonModule.EncodePasswordStructure(NewData, Row("DATA_KEYSIZE"), Row("DATA_KEY"))
 
                             AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, DirectCast(Row("ID"), Byte()), OldDataBinary, NewBytes, Row("DATA_POS"), Row("DATA_SIZE"))
 
-                        End If
+                            End If
 
                     Next
 
@@ -491,11 +490,9 @@ Public Class MainForm
 
     Private Sub MainForm_Shown(sender As Object, e As EventArgs) Handles Me.Shown
 
-        If Not IAmTheAdministrator() Then
+        If Not ShowWarning() Then
 
-            ButtonChangePwdFileDB.Enabled = False
-            ButtonChangePassSQL.Enabled = False
-            ButtonSetRepoPassword.Enabled = False
+            Application.Exit()
 
         End If
 
