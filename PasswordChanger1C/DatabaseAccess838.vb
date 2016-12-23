@@ -238,16 +238,21 @@ Module DatabaseAccess838
 
     End Sub
 
-    Private Function GetCleanDataFromBlob(Dataindex As Integer, Datasize As Integer, bytesBlock As Byte()) As Byte()
+    Private Function GetCleanDataFromBlob(Dataindex As Integer, Datasize As Integer, bytesBlock As Byte(), Optional ByRef DataPositions As Integer() = Nothing) As Byte()
 
         Dim NextBlock = 999 'any number gt 0
         Dim Pos = Dataindex * 256
         Dim ByteBlock() As Byte = New Byte(Datasize - 1) {}
         Dim i = 0
+        Dim BlocksCount = 0
+
         While NextBlock > 0
 
             NextBlock = BitConverter.ToInt32(bytesBlock, Pos)
             Dim BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4)
+
+            ReDim Preserve DataPositions(BlocksCount)
+            DataPositions(BlocksCount) = Pos + 6
 
             For j = 0 To BlockSize - 1
                 ByteBlock(i) = bytesBlock(Pos + 6 + j)
@@ -255,6 +260,7 @@ Module DatabaseAccess838
             Next
 
             Pos = NextBlock * 256
+            BlocksCount = BlocksCount + 1
 
         End While
 
@@ -343,20 +349,59 @@ Module DatabaseAccess838
 
         Dim BlobPage As PageParams = ReadObjectPageDefinition(reader, BytesBlobBlock, PageSize)
         BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage)
+        reader.Close()
 
-        Dim BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData)
+        Dim DataPositions As Integer() = Nothing
+        Dim BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, DataPositions)
 
         If BytesValTemp.SequenceEqual(OldData) Then
 
+            If OldData.Count = NewData.Count Then
+
+                Dim CurrentByte = 0
+                'Data is stored in 256 bytes blocks (6 bytes reserved for next block number and size)
+                For Each Position In DataPositions
+                    For i = 0 To 249
+                        If CurrentByte > NewData.Count - 1 Then
+                            Exit For
+                        End If
+
+                        Dim NewPosition = Position + i
+                        BlobPage.BinaryData(NewPosition) = NewData(CurrentByte)
+
+                        CurrentByte = CurrentByte + 1
+                    Next
+                Next
+
+                'Blob page(s) has been modified. Let's write it back to database
+                fs = New FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write)
+                Dim writer As New BinaryWriter(fs)
+
+                CurrentByte = 0
+                For Each Position In BlobPage.PagesNum
+
+                    Dim TempBlock() As Byte = New Byte(PageSize - 1) {}
+                    For j = 0 To PageSize - 1
+                        TempBlock(j) = BlobPage.BinaryData(CurrentByte)
+                        CurrentByte = CurrentByte + 1
+                    Next
+
+                    writer.Seek(Position * PageSize, SeekOrigin.Begin)
+                    writer.Write(TempBlock)
+
+                Next
+                writer.Close()
 
 
+
+            Else
+                Throw New System.Exception("Новый байтовый массив должен совпадать по размерам со старым массивом (т.к. мы только заменяем хэши одинаковой длины)." +
+                                           vbNewLine + "Сообщите пожалуйста об этой ошибке!")
+            End If
 
         Else
-            reader.Close()
             Throw New System.Exception("Информация в БД была изменена другим процессом! Прочитайте список пользователей заново.")
         End If
-
-        reader.Close()
 
     End Sub
 

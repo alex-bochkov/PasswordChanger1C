@@ -98,8 +98,6 @@ Public Class MainForm
 
         For Each Row In TableParams.Records
 
-
-
             If Row("NAME").ToString = "" Then
                 Row.Add("UserGuidStr", "")
                 Row.Add("UserPassHash", "")
@@ -115,11 +113,12 @@ Public Class MainForm
 
             Row.Add("UserGuidStr", G.ToString)
 
+            'pretty crapy code here..
             If AuthStructure(0)(7) = "0" Then
                 Row.Add("UserPassHash", "")
                 Row.Add("UserPassHash2", "")
             Else
-                If AuthStructure(0).Count = 17 Then
+                If AuthStructure(0).Count = 17 Or TableParams.DatabaseVersion = "8.3.8" Then
                     Row.Add("UserPassHash", AuthStructure(0)(11))
                     Row.Add("UserPassHash2", AuthStructure(0)(12))
                 Else
@@ -440,11 +439,12 @@ Public Class MainForm
                             Str = Str + vbNewLine + Row("NAME").ToString
 
                             Dim NewHash = CommonModule.EncryptStringSHA1(NewPassword.Text.Trim)
+                            Dim NewHash2 = CommonModule.EncryptStringSHA1(NewPassword.Text.Trim.ToUpper)
 
                             Dim OldDataBinary = Row("DATA_BINARY")
                             Dim OldData = Row("DATA").ToString
                             Dim NewData = OldData.Replace(Row("UserPassHash"), """" + NewHash + """")
-                            NewData = NewData.Replace(Row("UserPassHash2"), """" + NewHash + """")
+                            NewData = NewData.Replace(Row("UserPassHash2"), """" + NewHash2 + """")
 
                             Dim NewBytes = CommonModule.EncodePasswordStructure(NewData, Row("DATA_KEYSIZE"), Row("DATA_KEY"))
 
