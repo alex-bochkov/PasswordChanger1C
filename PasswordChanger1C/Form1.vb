@@ -8,6 +8,7 @@ Public Class MainForm
     Structure SQLUser
         Dim ID As Byte()
         Dim IDStr As String
+        Dim IDEncoded As String
         Dim Name As String
         Dim Descr As String
         Dim Data As Byte()
@@ -26,8 +27,7 @@ Public Class MainForm
 
         InitializeComponent()
 
-        FileIB.Text = "C:\Users\Alex\Documents\1222\1Cv8.1CD"
-        'FileIB.Text = "E:\bases1C\DemoHRM_3.0\1Cv8.1CD"
+        FileIB.Text = "C:\Users\1C\1Cv8.1CD"
 
         ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
 
@@ -140,11 +140,16 @@ Public Class MainForm
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
 
-        GetUsersSQL()
+        Select Case cbDBType.SelectedIndex
+            Case 0
+                GetUsersMSSQL()
+            Case 1
+                GetUsersPostgreSQL()
+        End Select
 
     End Sub
 
-    Sub GetUsersSQL()
+    Sub GetUsersMSSQL()
 
         '*****************************************************
         SQLUsers.Clear()
@@ -228,6 +233,97 @@ Public Class MainForm
 
     End Sub
 
+    Sub GetUsersPostgreSQL()
+
+        '*****************************************************
+        SQLUsers.Clear()
+        SQLUserList.Items.Clear()
+
+        Try
+            Dim Connection = New Odbc.OdbcConnection(ConnectionString.Text)
+            Connection.Open()
+
+            'Dim command As New Odbc.OdbcCommand("Select * FROM public.v8users", Connection)
+            Dim command As New Odbc.OdbcCommand("Select *, encode(id, 'hex') FROM public.v8users", Connection)
+
+            Dim reader = command.ExecuteReader()
+
+            While reader.Read
+
+                Try
+
+                    Dim SQLUser = New SQLUser
+                    SQLUser.ID = New Byte(reader.GetBytes(0, 0, Nothing, 0, 0) - 1) {}
+                    Dim a = reader.GetBytes(0, 0, SQLUser.ID, 0, reader.GetBytes(0, 0, Nothing, 0, 0))
+                    SQLUser.Name = reader.GetString(1)
+                    SQLUser.Descr = reader.GetString(2)
+                    SQLUser.Data = New Byte(reader.GetBytes(7, 0, Nothing, 0, 0)) {}
+                    SQLUser.IDEncoded = reader.GetString(11)
+                    Dim b = reader.GetBytes(7, 0, SQLUser.Data, 0, reader.GetBytes(7, 0, Nothing, 0, 0))
+                    SQLUser.AdmRole = IIf(reader.GetString(9) = "1", "Да", "")
+
+                    SQLUser.IDStr = New Guid(SQLUser.ID).ToString
+                    SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
+
+                    Dim AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+
+                    If AuthStructure(0)(7).ToString = "0" Then
+                        'нет авторизации 1С
+                        SQLUser.PassHash = "нет авторизации 1С"
+                    Else
+                        Try
+                            If AuthStructure(0).Count = 17 Then
+                                SQLUser.PassHash = AuthStructure(0)(11).ToString
+                                SQLUser.PassHash2 = AuthStructure(0)(12).ToString
+                            Else
+                                SQLUser.PassHash = AuthStructure(0)(12).ToString
+                                SQLUser.PassHash2 = AuthStructure(0)(13).ToString
+                            End If
+                        Catch
+                        End Try
+                    End If
+
+                    SQLUsers.Add(SQLUser)
+
+                Catch ex As Exception
+
+                End Try
+
+
+
+            End While
+
+            reader.Close()
+        Catch ex As Exception
+
+            MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
+
+            Exit Sub
+
+        End Try
+
+        '*****************************************************
+
+        For Each Row In SQLUsers
+
+            If String.IsNullOrEmpty(Row.Name) Then
+                Continue For
+            End If
+
+            Dim itemUserList = New ListViewItem(Row.IDStr)
+
+            itemUserList.SubItems.Add(Row.Name)
+            itemUserList.SubItems.Add(Row.Descr)
+            itemUserList.SubItems.Add(Row.PassHash)
+            itemUserList.SubItems.Add(Row.AdmRole)
+
+            SQLUserList.Items.Add(itemUserList)
+
+        Next
+        '*****************************************************
+
+    End Sub
+
     Private Sub ButtonChangePassSQL_Click(sender As Object, e As EventArgs) Handles ButtonChangePassSQL.Click
 
         If SQLUserList.SelectedItems.Count = 0 Then
@@ -243,6 +339,16 @@ Public Class MainForm
             Exit Sub
         End If
 
+        Select Case cbDBType.SelectedIndex
+            Case 0
+                SetUsersMSSQL()
+            Case 1
+                SetUsersPostgreSQL()
+        End Select
+
+    End Sub
+
+    Sub SetUsersMSSQL()
         Try
 
             Dim Str = ""
@@ -279,7 +385,7 @@ Public Class MainForm
                 Next
             Next
 
-            GetUsersSQL()
+            GetUsersMSSQL()
 
             MsgBox("Успешно установлен пароль '" + NewPassSQL.Text.Trim + "' для пользователей:" + Str, MsgBoxStyle.Information, "Операция успешно выполнена")
 
@@ -288,11 +394,68 @@ Public Class MainForm
             MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
 
         End Try
+    End Sub
 
+    Sub SetUsersPostgreSQL()
+        Try
 
+            Dim Str = ""
+            Dim a = 0
 
+            Dim Connection = New Odbc.OdbcConnection(ConnectionString.Text)
+            Connection.Open()
 
+            'Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET Data = @data WHERE ID = @id", Connection) 'MSSQL syntax
+            'Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET data = ?, name = ? WHERE id = ?", Connection)
+            'Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET data = ?data WHERE id = ?id", Connection) 'MySQL syntax
+            'Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET data = ? WHERE id = decode(encode(?, 'hex'), 'hex')", Connection) 'PostgreSQL syntax
 
+            'Получилось только так, возможно что-то упустил в предыдущих попытках
+            Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET data=? WHERE id=decode(?, 'hex')", Connection) 'PostgreSQL syntax
+
+            For Each item In SQLUserList.SelectedItems
+
+                For Each SQLUser In SQLUsers
+                    If SQLUser.IDStr = item.text _
+                        And Not SQLUser.PassHash = """""" Then
+
+                        Str = Str + vbNewLine + SQLUser.Name
+
+                        Dim NewHash = CommonModule.EncryptStringSHA1(NewPassSQL.Text.Trim)
+
+                        Dim NewData = SQLUser.DataStr.Replace(SQLUser.PassHash, """" + NewHash + """")
+                        NewData = NewData.Replace(SQLUser.PassHash2, """" + NewHash + """")
+
+                        Dim NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData)
+
+                        command.Parameters.Clear()
+                        'command.Parameters.Add("@id", Odbc.OdbcType.VarBinary).Value = SQLUser.ID
+                        'Важен порядок добавления параметров!
+                        command.Parameters.Add("@data", Odbc.OdbcType.Binary).Value = NewBytes
+                        command.Parameters.Add("@id", Odbc.OdbcType.Text).Value = SQLUser.IDEncoded
+                        'command.Parameters.Add(New Odbc.OdbcParameter("@id", SQLUser.ID))
+                        'command.Parameters.Add(New Odbc.OdbcParameter("@data", NewBytes))
+                        'command.Parameters.Add(New Odbc.OdbcParameter("id", SqlDbType.Binary)).Value = SQLUser.ID
+                        'command.Parameters.Add(New Odbc.OdbcParameter("data", SqlDbType.Binary)).Value = NewBytes
+                        'command.Parameters.Add(New Odbc.OdbcParameter("name", Odbc.OdbcType.Binary)).Value = NewBytes
+
+                        a = command.ExecuteNonQuery()
+
+                    End If
+                Next
+            Next
+
+            GetUsersPostgreSQL()
+
+            If a > 0 Then
+                MsgBox("Успешно установлен пароль '" + NewPassSQL.Text.Trim + "' для пользователей:" + Str, MsgBoxStyle.Information, "Операция успешно выполнена")
+            End If
+
+        Catch ex As Exception
+
+            MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
+
+        End Try
     End Sub
 
     Private Sub ButtonRepo_Click(sender As Object, e As EventArgs) Handles ButtonRepo.Click
@@ -312,7 +475,6 @@ Public Class MainForm
     End Sub
 
     Sub GetUsersRepoUsers()
-
 
         RepoUserList.Items.Clear()
 
@@ -496,6 +658,16 @@ Public Class MainForm
 
         End If
 
+        cbDBType.SelectedIndex = 0
+
     End Sub
 
+    Private Sub CbDBType_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cbDBType.SelectedIndexChanged
+        Select Case cbDBType.SelectedIndex
+            Case 0
+                ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
+            Case 1
+                ConnectionString.Text = "Driver={PostgreSQL Unicode};Server=localhost;Database=zup;Uid=postgres;Pwd=password;UseServerSidePrepare=1;ReadOnly=0"
+        End Select
+    End Sub
 End Class
