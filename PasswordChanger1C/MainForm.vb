@@ -1,5 +1,6 @@
 ﻿Imports System.Data.SqlClient
 Imports System.Security.Principal
+Imports Npgsql
 
 Public Class MainForm
 
@@ -23,13 +24,28 @@ Public Class MainForm
 
     Public Sub New()
 
-
         InitializeComponent()
 
-        FileIB.Text = "C:\Users\Alex\Documents\1222\1Cv8.1CD"
-        'FileIB.Text = "E:\bases1C\DemoHRM_3.0\1Cv8.1CD"
+        FileIB.Text = "C:\Users\1C\1Cv8.1CD"
 
         ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
+
+        cbDBType.SelectedIndex = 0
+
+    End Sub
+
+    Private Sub MainForm_Shown(sender As Object, e As EventArgs) Handles Me.Shown
+
+        Dim ShowWarningParameterIndex = My.Application.CommandLineArgs.IndexOf("nowarning")
+
+        If ShowWarningParameterIndex = -1 Then
+
+            If Not ShowWarning() Then
+
+                Application.Exit()
+
+            End If
+        End If
 
     End Sub
 
@@ -140,11 +156,16 @@ Public Class MainForm
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
 
-        GetUsersSQL()
+        Select Case cbDBType.SelectedIndex
+            Case 0
+                GetUsersMSSQL()
+            Case 1
+                GetUsersPostgreSQL()
+        End Select
 
     End Sub
 
-    Sub GetUsersSQL()
+    Sub GetUsersMSSQL()
 
         '*****************************************************
         SQLUsers.Clear()
@@ -191,13 +212,121 @@ Public Class MainForm
 
                 Catch ex As Exception
 
+                    MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
+
+                    Exit Sub
+
                 End Try
-
-
 
             End While
 
             reader.Close()
+
+        Catch ex As Exception
+
+            MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
+
+            Exit Sub
+
+        End Try
+
+        '*****************************************************
+
+        For Each Row In SQLUsers
+
+            If String.IsNullOrEmpty(Row.Name) Then
+                Continue For
+            End If
+
+            Dim itemUserList = New ListViewItem(Row.IDStr)
+
+            itemUserList.SubItems.Add(Row.Name)
+            itemUserList.SubItems.Add(Row.Descr)
+            itemUserList.SubItems.Add(Row.PassHash)
+            itemUserList.SubItems.Add(Row.AdmRole)
+
+            SQLUserList.Items.Add(itemUserList)
+
+        Next
+        '*****************************************************
+
+    End Sub
+
+    Sub GetUsersPostgreSQL()
+
+        '*****************************************************
+        SQLUsers.Clear()
+        SQLUserList.Items.Clear()
+
+        Try
+            Dim Connection = New NpgsqlConnection(ConnectionString.Text)
+            Connection.Open()
+
+            Dim command = New NpgsqlCommand("SELECT id,
+	                                            encode(id, 'hex') as idStr,
+	                                            CAST(name AS VARCHAR(64)) AS Name,
+	                                            CAST(descr AS VARCHAR(128)) AS Descr,
+                                                data,
+                                                admrole
+                                            FROM public.v8users", Connection)
+
+            Dim reader = command.ExecuteReader()
+
+            While reader.Read
+
+                Try
+
+                    Dim SQLUser = New SQLUser
+                    SQLUser.ID = reader(0)
+                    SQLUser.IDStr = reader.GetString(1)
+
+                    SQLUser.Name = reader.GetString(2)
+                    SQLUser.Descr = reader.GetString(3)
+
+                    SQLUser.Data = reader(4)
+                    SQLUser.AdmRole = IIf(reader.GetBoolean(5), "Да", "")
+
+                    SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
+
+                    Dim AuthStructure As List(Of Object)
+
+                    If Not SQLUser.DataStr(0) = "{"c Then
+                        'postgres in my test has weird first symbol
+                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr.Substring(1))
+                    Else
+                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+                    End If
+
+                    If AuthStructure(0)(7).ToString = "0" Then
+                        'нет авторизации 1С
+                        SQLUser.PassHash = "нет авторизации 1С"
+                    Else
+                        Try
+                            If AuthStructure(0).Count = 17 Or AuthStructure(0).Count = 19 Then
+                                SQLUser.PassHash = AuthStructure(0)(11).ToString
+                                SQLUser.PassHash2 = AuthStructure(0)(12).ToString
+                            Else
+                                SQLUser.PassHash = AuthStructure(0)(12).ToString
+                                SQLUser.PassHash2 = AuthStructure(0)(13).ToString
+                            End If
+                        Catch
+                        End Try
+                    End If
+
+                    SQLUsers.Add(SQLUser)
+
+                Catch ex As Exception
+
+                    MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
+
+                    Exit Sub
+
+                End Try
+
+            End While
+
+            reader.Close()
+
         Catch ex As Exception
 
             MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
@@ -243,6 +372,16 @@ Public Class MainForm
             Exit Sub
         End If
 
+        Select Case cbDBType.SelectedIndex
+            Case 0
+                SetUsersMSSQL()
+            Case 1
+                SetUsersPostgreSQL()
+        End Select
+
+    End Sub
+
+    Sub SetUsersMSSQL()
         Try
 
             Dim Str = ""
@@ -279,7 +418,7 @@ Public Class MainForm
                 Next
             Next
 
-            GetUsersSQL()
+            GetUsersMSSQL()
 
             MsgBox("Успешно установлен пароль '" + NewPassSQL.Text.Trim + "' для пользователей:" + Str, MsgBoxStyle.Information, "Операция успешно выполнена")
 
@@ -288,11 +427,57 @@ Public Class MainForm
             MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
 
         End Try
+    End Sub
 
+    Sub SetUsersPostgreSQL()
+        Try
 
+            Dim Str = ""
+            Dim a = 0
 
+            Dim Connection = New NpgsqlConnection(ConnectionString.Text)
+            Connection.Open()
 
+            Dim command As New NpgsqlCommand("UPDATE public.v8users 
+                                             SET data = @NewData 
+                                             WHERE id = decode(@id, 'hex')", Connection)
 
+            For Each item In SQLUserList.SelectedItems
+
+                For Each SQLUser In SQLUsers
+                    If SQLUser.IDStr = item.text _
+                        And Not SQLUser.PassHash = """""" Then
+
+                        Str = Str + vbNewLine + SQLUser.Name
+
+                        Dim NewHash = CommonModule.EncryptStringSHA1(NewPassSQL.Text.Trim)
+
+                        Dim NewData = SQLUser.DataStr.Replace(SQLUser.PassHash, """" + NewHash + """")
+                        NewData = NewData.Replace(SQLUser.PassHash2, """" + NewHash + """")
+
+                        Dim NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData)
+
+                        command.Parameters.Clear()
+                        command.Parameters.AddWithValue("NewData", NewBytes)
+                        command.Parameters.AddWithValue("id", SQLUser.IDStr)
+
+                        a = command.ExecuteNonQuery()
+
+                    End If
+                Next
+            Next
+
+            GetUsersPostgreSQL()
+
+            If a > 0 Then
+                MsgBox("Успешно установлен пароль '" + NewPassSQL.Text.Trim + "' для пользователей:" + Str, MsgBoxStyle.Information, "Операция успешно выполнена")
+            End If
+
+        Catch ex As Exception
+
+            MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
+
+        End Try
     End Sub
 
     Private Sub ButtonRepo_Click(sender As Object, e As EventArgs) Handles ButtonRepo.Click
@@ -312,7 +497,6 @@ Public Class MainForm
     End Sub
 
     Sub GetUsersRepoUsers()
-
 
         RepoUserList.Items.Clear()
 
@@ -449,7 +633,7 @@ Public Class MainForm
 
                             AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, DirectCast(Row("ID"), Byte()), OldDataBinary, NewBytes, Row("DATA_POS"), Row("DATA_SIZE"))
 
-                            End If
+                        End If
 
                     Next
 
@@ -469,13 +653,6 @@ Public Class MainForm
 
     End Sub
 
-    Private Sub MainForm_HelpButtonClicked(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles MyBase.HelpButtonClicked
-
-        Dim AboutForm = New AboutBox
-        AboutForm.ShowDialog()
-
-    End Sub
-
     Private Sub LinkLabel2_Click(sender As Object, e As EventArgs) Handles LinkLabel2.Click
 
         Process.Start("https://github.com/alekseybochkov/")
@@ -488,14 +665,12 @@ Public Class MainForm
 
     End Sub
 
-    Private Sub MainForm_Shown(sender As Object, e As EventArgs) Handles Me.Shown
-
-        If Not ShowWarning() Then
-
-            Application.Exit()
-
-        End If
-
+    Private Sub CbDBType_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cbDBType.SelectedIndexChanged
+        Select Case cbDBType.SelectedIndex
+            Case 0
+                ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
+            Case 1
+                ConnectionString.Text = "Host=localhost;Username=postgres;Password=password;Database=database"
+        End Select
     End Sub
-
 End Class
