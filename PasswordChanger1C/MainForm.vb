@@ -1,5 +1,6 @@
 ﻿Imports System.Data.SqlClient
 Imports System.Security.Principal
+Imports Npgsql
 
 Public Class MainForm
 
@@ -8,7 +9,6 @@ Public Class MainForm
     Structure SQLUser
         Dim ID As Byte()
         Dim IDStr As String
-        Dim IDEncoded As String
         Dim Name As String
         Dim Descr As String
         Dim Data As Byte()
@@ -18,18 +18,35 @@ Public Class MainForm
         Dim AdmRole As String
         Dim KeySize As Integer
         Dim KeyData As Byte()
+        Dim PostgresExtraSymbol As String
     End Structure
 
     Dim SQLUsers As List(Of SQLUser) = New List(Of SQLUser)
 
     Public Sub New()
 
-
         InitializeComponent()
 
         FileIB.Text = "C:\Users\1C\1Cv8.1CD"
 
         ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
+
+        cbDBType.SelectedIndex = 0
+
+    End Sub
+
+    Private Sub MainForm_Shown(sender As Object, e As EventArgs) Handles Me.Shown
+
+        Dim ShowWarningParameterIndex = My.Application.CommandLineArgs.IndexOf("nowarning")
+
+        If ShowWarningParameterIndex = -1 Then
+
+            If Not ShowWarning() Then
+
+                Application.Exit()
+
+            End If
+        End If
 
     End Sub
 
@@ -196,13 +213,16 @@ Public Class MainForm
 
                 Catch ex As Exception
 
+                    MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
+
+                    Exit Sub
+
                 End Try
-
-
 
             End While
 
             reader.Close()
+
         Catch ex As Exception
 
             MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
@@ -240,11 +260,16 @@ Public Class MainForm
         SQLUserList.Items.Clear()
 
         Try
-            Dim Connection = New Odbc.OdbcConnection(ConnectionString.Text)
+            Dim Connection = New NpgsqlConnection(ConnectionString.Text)
             Connection.Open()
 
-            'Dim command As New Odbc.OdbcCommand("Select * FROM public.v8users", Connection)
-            Dim command As New Odbc.OdbcCommand("Select *, encode(id, 'hex') FROM public.v8users", Connection)
+            Dim command = New NpgsqlCommand("SELECT id,
+	                                            encode(id, 'hex') as idStr,
+	                                            CAST(name AS VARCHAR(64)) AS Name,
+	                                            CAST(descr AS VARCHAR(128)) AS Descr,
+                                                data,
+                                                admrole
+                                            FROM public.v8users", Connection)
 
             Dim reader = command.ExecuteReader()
 
@@ -253,26 +278,32 @@ Public Class MainForm
                 Try
 
                     Dim SQLUser = New SQLUser
-                    SQLUser.ID = New Byte(reader.GetBytes(0, 0, Nothing, 0, 0) - 1) {}
-                    Dim a = reader.GetBytes(0, 0, SQLUser.ID, 0, reader.GetBytes(0, 0, Nothing, 0, 0))
-                    SQLUser.Name = reader.GetString(1)
-                    SQLUser.Descr = reader.GetString(2)
-                    SQLUser.Data = New Byte(reader.GetBytes(7, 0, Nothing, 0, 0)) {}
-                    SQLUser.IDEncoded = reader.GetString(11)
-                    Dim b = reader.GetBytes(7, 0, SQLUser.Data, 0, reader.GetBytes(7, 0, Nothing, 0, 0))
-                    SQLUser.AdmRole = IIf(reader.GetString(9) = "1", "Да", "")
+                    SQLUser.ID = reader(0)
+                    SQLUser.IDStr = reader.GetString(1)
 
-                    SQLUser.IDStr = New Guid(SQLUser.ID).ToString
+                    SQLUser.Name = reader.GetString(2)
+                    SQLUser.Descr = reader.GetString(3)
+
+                    SQLUser.Data = reader(4)
+                    SQLUser.AdmRole = IIf(reader.GetBoolean(5), "Да", "")
+
                     SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
 
-                    Dim AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+                    Dim AuthStructure As List(Of Object)
+
+                    If Not SQLUser.DataStr(0) = "{"c Then
+                        'postgres in my test has weird first symbol
+                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr.Substring(1))
+                    Else
+                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+                    End If
 
                     If AuthStructure(0)(7).ToString = "0" Then
                         'нет авторизации 1С
                         SQLUser.PassHash = "нет авторизации 1С"
                     Else
                         Try
-                            If AuthStructure(0).Count = 17 Then
+                            If AuthStructure(0).Count = 17 Or AuthStructure(0).Count = 19 Then
                                 SQLUser.PassHash = AuthStructure(0)(11).ToString
                                 SQLUser.PassHash2 = AuthStructure(0)(12).ToString
                             Else
@@ -287,13 +318,16 @@ Public Class MainForm
 
                 Catch ex As Exception
 
+                    MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
+
+                    Exit Sub
+
                 End Try
-
-
 
             End While
 
             reader.Close()
+
         Catch ex As Exception
 
             MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных")
@@ -402,16 +436,12 @@ Public Class MainForm
             Dim Str = ""
             Dim a = 0
 
-            Dim Connection = New Odbc.OdbcConnection(ConnectionString.Text)
+            Dim Connection = New NpgsqlConnection(ConnectionString.Text)
             Connection.Open()
 
-            'Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET Data = @data WHERE ID = @id", Connection) 'MSSQL syntax
-            'Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET data = ?, name = ? WHERE id = ?", Connection)
-            'Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET data = ?data WHERE id = ?id", Connection) 'MySQL syntax
-            'Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET data = ? WHERE id = decode(encode(?, 'hex'), 'hex')", Connection) 'PostgreSQL syntax
-
-            'Получилось только так, возможно что-то упустил в предыдущих попытках
-            Dim command As New Odbc.OdbcCommand("UPDATE public.v8users SET data=? WHERE id=decode(?, 'hex')", Connection) 'PostgreSQL syntax
+            Dim command As New NpgsqlCommand("UPDATE public.v8users 
+                                             SET data = @NewData 
+                                             WHERE id = decode(@id, 'hex')", Connection)
 
             For Each item In SQLUserList.SelectedItems
 
@@ -429,15 +459,8 @@ Public Class MainForm
                         Dim NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData)
 
                         command.Parameters.Clear()
-                        'command.Parameters.Add("@id", Odbc.OdbcType.VarBinary).Value = SQLUser.ID
-                        'Важен порядок добавления параметров!
-                        command.Parameters.Add("@data", Odbc.OdbcType.Binary).Value = NewBytes
-                        command.Parameters.Add("@id", Odbc.OdbcType.Text).Value = SQLUser.IDEncoded
-                        'command.Parameters.Add(New Odbc.OdbcParameter("@id", SQLUser.ID))
-                        'command.Parameters.Add(New Odbc.OdbcParameter("@data", NewBytes))
-                        'command.Parameters.Add(New Odbc.OdbcParameter("id", SqlDbType.Binary)).Value = SQLUser.ID
-                        'command.Parameters.Add(New Odbc.OdbcParameter("data", SqlDbType.Binary)).Value = NewBytes
-                        'command.Parameters.Add(New Odbc.OdbcParameter("name", Odbc.OdbcType.Binary)).Value = NewBytes
+                        command.Parameters.AddWithValue("NewData", NewBytes)
+                        command.Parameters.AddWithValue("id", SQLUser.IDStr)
 
                         a = command.ExecuteNonQuery()
 
@@ -611,7 +634,7 @@ Public Class MainForm
 
                             AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, DirectCast(Row("ID"), Byte()), OldDataBinary, NewBytes, Row("DATA_POS"), Row("DATA_SIZE"))
 
-                            End If
+                        End If
 
                     Next
 
@@ -631,13 +654,6 @@ Public Class MainForm
 
     End Sub
 
-    Private Sub MainForm_HelpButtonClicked(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles MyBase.HelpButtonClicked
-
-        Dim AboutForm = New AboutBox
-        AboutForm.ShowDialog()
-
-    End Sub
-
     Private Sub LinkLabel2_Click(sender As Object, e As EventArgs) Handles LinkLabel2.Click
 
         Process.Start("https://github.com/alekseybochkov/")
@@ -650,24 +666,12 @@ Public Class MainForm
 
     End Sub
 
-    Private Sub MainForm_Shown(sender As Object, e As EventArgs) Handles Me.Shown
-
-        If Not ShowWarning() Then
-
-            Application.Exit()
-
-        End If
-
-        cbDBType.SelectedIndex = 0
-
-    End Sub
-
     Private Sub CbDBType_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cbDBType.SelectedIndexChanged
         Select Case cbDBType.SelectedIndex
             Case 0
                 ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
             Case 1
-                ConnectionString.Text = "Driver={PostgreSQL Unicode};Server=localhost;Database=zup;Uid=postgres;Pwd=password;UseServerSidePrepare=1;ReadOnly=0"
+                ConnectionString.Text = "Host=localhost;Username=postgres;Password=BizKarma123;Database=psql3"
         End Select
     End Sub
 End Class

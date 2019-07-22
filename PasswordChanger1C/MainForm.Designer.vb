@@ -50,6 +50,8 @@ Partial Class MainForm
         Me.ButtonChangePwdFileDB = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
+        Me.Label7 = New System.Windows.Forms.Label()
+        Me.cbDBType = New System.Windows.Forms.ComboBox()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.ButtonChangePassSQL = New System.Windows.Forms.Button()
         Me.Label6 = New System.Windows.Forms.Label()
@@ -72,8 +74,6 @@ Partial Class MainForm
         Me.LinkLabel1 = New System.Windows.Forms.LinkLabel()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.LinkLabel2 = New System.Windows.Forms.LinkLabel()
-        Me.cbDBType = New System.Windows.Forms.ComboBox()
-        Me.Label7 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
@@ -159,9 +159,10 @@ Partial Class MainForm
         '
         Me.ConnectionString.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.ConnectionString.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ConnectionString.Location = New System.Drawing.Point(9, 48)
         Me.ConnectionString.Name = "ConnectionString"
-        Me.ConnectionString.Size = New System.Drawing.Size(734, 20)
+        Me.ConnectionString.Size = New System.Drawing.Size(734, 26)
         Me.ConnectionString.TabIndex = 9
         Me.ConnectionString.Text = "Data Source=MSSQL1;Server=SERVER;Integrated Security=true;Database=DATABASE"
         '
@@ -352,6 +353,25 @@ Partial Class MainForm
         Me.TabPage2.Text = "Клиент-серверная ИБ"
         Me.TabPage2.UseVisualStyleBackColor = True
         '
+        'Label7
+        '
+        Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label7.Location = New System.Drawing.Point(9, 9)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(166, 17)
+        Me.Label7.TabIndex = 24
+        Me.Label7.Text = "Тип базы данных:"
+        '
+        'cbDBType
+        '
+        Me.cbDBType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cbDBType.FormattingEnabled = True
+        Me.cbDBType.Items.AddRange(New Object() {"Microsoft SQL Server", "PostgreSQL Server"})
+        Me.cbDBType.Location = New System.Drawing.Point(181, 7)
+        Me.cbDBType.Name = "cbDBType"
+        Me.cbDBType.Size = New System.Drawing.Size(185, 21)
+        Me.cbDBType.TabIndex = 23
+        '
         'TextBox2
         '
         Me.TextBox2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
@@ -416,9 +436,9 @@ Partial Class MainForm
         Me.SQLUserList.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.ColumnHeader1, Me.ColumnHeader2, Me.ColumnHeader3, Me.ColumnHeader4, Me.ColumnHeader5})
         Me.SQLUserList.FullRowSelect = True
         Me.SQLUserList.HideSelection = False
-        Me.SQLUserList.Location = New System.Drawing.Point(9, 75)
+        Me.SQLUserList.Location = New System.Drawing.Point(9, 76)
         Me.SQLUserList.Name = "SQLUserList"
-        Me.SQLUserList.Size = New System.Drawing.Size(905, 336)
+        Me.SQLUserList.Size = New System.Drawing.Size(905, 335)
         Me.SQLUserList.TabIndex = 20
         Me.SQLUserList.UseCompatibleStateImageBehavior = False
         Me.SQLUserList.View = System.Windows.Forms.View.Details
@@ -555,25 +575,6 @@ Partial Class MainForm
         Me.LinkLabel2.TabIndex = 18
         Me.LinkLabel2.TabStop = True
         Me.LinkLabel2.Text = "© Aleksey.Bochkov"
-        '
-        'cbDBType
-        '
-        Me.cbDBType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cbDBType.FormattingEnabled = True
-        Me.cbDBType.Items.AddRange(New Object() {"Microsoft SQL Server", "PostgreSQL Server"})
-        Me.cbDBType.Location = New System.Drawing.Point(181, 7)
-        Me.cbDBType.Name = "cbDBType"
-        Me.cbDBType.Size = New System.Drawing.Size(185, 21)
-        Me.cbDBType.TabIndex = 23
-        '
-        'Label7
-        '
-        Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label7.Location = New System.Drawing.Point(9, 9)
-        Me.Label7.Name = "Label7"
-        Me.Label7.Size = New System.Drawing.Size(166, 17)
-        Me.Label7.TabIndex = 24
-        Me.Label7.Text = "Тип базы данных:"
         '
         'MainForm
         '
