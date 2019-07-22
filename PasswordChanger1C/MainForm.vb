@@ -670,7 +670,7 @@ Public Class MainForm
             Case 0
                 ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
             Case 1
-                ConnectionString.Text = "Host=localhost;Username=postgres;Password=BizKarma123;Database=psql3"
+                ConnectionString.Text = "Host=localhost;Username=postgres;Password=password;Database=psql3"
         End Select
     End Sub
 End Class
