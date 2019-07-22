@@ -72,6 +72,8 @@ Partial Class MainForm
         Me.LinkLabel1 = New System.Windows.Forms.LinkLabel()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.LinkLabel2 = New System.Windows.Forms.LinkLabel()
+        Me.cbDBType = New System.Windows.Forms.ComboBox()
+        Me.Label7 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
@@ -81,9 +83,9 @@ Partial Class MainForm
         'Button6
         '
         Me.Button6.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Button6.Location = New System.Drawing.Point(454, 23)
+        Me.Button6.Location = New System.Drawing.Point(636, 24)
         Me.Button6.Name = "Button6"
-        Me.Button6.Size = New System.Drawing.Size(95, 23)
+        Me.Button6.Size = New System.Drawing.Size(95, 22)
         Me.Button6.TabIndex = 11
         Me.Button6.Text = "Выбрать файл"
         Me.Button6.UseVisualStyleBackColor = True
@@ -94,7 +96,7 @@ Partial Class MainForm
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.FileIB.Location = New System.Drawing.Point(9, 25)
         Me.FileIB.Name = "FileIB"
-        Me.FileIB.Size = New System.Drawing.Size(443, 20)
+        Me.FileIB.Size = New System.Drawing.Size(625, 20)
         Me.FileIB.TabIndex = 9
         '
         'OpenFileDialog
@@ -106,9 +108,9 @@ Partial Class MainForm
         'ButtonGetUsers
         '
         Me.ButtonGetUsers.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.ButtonGetUsers.Location = New System.Drawing.Point(551, 23)
+        Me.ButtonGetUsers.Location = New System.Drawing.Point(733, 24)
         Me.ButtonGetUsers.Name = "ButtonGetUsers"
-        Me.ButtonGetUsers.Size = New System.Drawing.Size(183, 23)
+        Me.ButtonGetUsers.Size = New System.Drawing.Size(183, 22)
         Me.ButtonGetUsers.TabIndex = 12
         Me.ButtonGetUsers.Text = "Получить список пользователей"
         Me.ButtonGetUsers.UseVisualStyleBackColor = True
@@ -120,9 +122,10 @@ Partial Class MainForm
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.ListViewUsers.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.UserGUID, Me.UserName, Me.UserDescr, Me.UserPassHash, Me.UserAdmRole})
         Me.ListViewUsers.FullRowSelect = True
+        Me.ListViewUsers.HideSelection = False
         Me.ListViewUsers.Location = New System.Drawing.Point(9, 50)
         Me.ListViewUsers.Name = "ListViewUsers"
-        Me.ListViewUsers.Size = New System.Drawing.Size(723, 302)
+        Me.ListViewUsers.Size = New System.Drawing.Size(905, 343)
         Me.ListViewUsers.TabIndex = 14
         Me.ListViewUsers.UseCompatibleStateImageBehavior = False
         Me.ListViewUsers.View = System.Windows.Forms.View.Details
@@ -156,18 +159,18 @@ Partial Class MainForm
         '
         Me.ConnectionString.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.ConnectionString.Location = New System.Drawing.Point(9, 25)
+        Me.ConnectionString.Location = New System.Drawing.Point(9, 48)
         Me.ConnectionString.Name = "ConnectionString"
-        Me.ConnectionString.Size = New System.Drawing.Size(552, 20)
+        Me.ConnectionString.Size = New System.Drawing.Size(734, 20)
         Me.ConnectionString.TabIndex = 9
         Me.ConnectionString.Text = "Data Source=MSSQL1;Server=SERVER;Integrated Security=true;Database=DATABASE"
         '
         'Button2
         '
         Me.Button2.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Button2.Location = New System.Drawing.Point(563, 23)
+        Me.Button2.Location = New System.Drawing.Point(745, 47)
         Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(172, 23)
+        Me.Button2.Size = New System.Drawing.Size(172, 22)
         Me.Button2.TabIndex = 12
         Me.Button2.Text = "Получить пользователей"
         Me.Button2.UseVisualStyleBackColor = True
@@ -188,13 +191,13 @@ Partial Class MainForm
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Repo1C.Location = New System.Drawing.Point(9, 25)
         Me.Repo1C.Name = "Repo1C"
-        Me.Repo1C.Size = New System.Drawing.Size(434, 20)
+        Me.Repo1C.Size = New System.Drawing.Size(616, 20)
         Me.Repo1C.TabIndex = 9
         '
         'ButtonRepo
         '
         Me.ButtonRepo.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.ButtonRepo.Location = New System.Drawing.Point(445, 23)
+        Me.ButtonRepo.Location = New System.Drawing.Point(627, 23)
         Me.ButtonRepo.Name = "ButtonRepo"
         Me.ButtonRepo.Size = New System.Drawing.Size(98, 23)
         Me.ButtonRepo.TabIndex = 11
@@ -210,7 +213,7 @@ Partial Class MainForm
         'ButtonGetRepoUsers
         '
         Me.ButtonGetRepoUsers.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.ButtonGetRepoUsers.Location = New System.Drawing.Point(543, 23)
+        Me.ButtonGetRepoUsers.Location = New System.Drawing.Point(725, 23)
         Me.ButtonGetRepoUsers.Name = "ButtonGetRepoUsers"
         Me.ButtonGetRepoUsers.Size = New System.Drawing.Size(192, 23)
         Me.ButtonGetRepoUsers.TabIndex = 12
@@ -222,7 +225,7 @@ Partial Class MainForm
         Me.ButtonSetRepoPassword.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.ButtonSetRepoPassword.Font = New System.Drawing.Font("Arial", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonSetRepoPassword.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer))
-        Me.ButtonSetRepoPassword.Location = New System.Drawing.Point(443, 372)
+        Me.ButtonSetRepoPassword.Location = New System.Drawing.Point(625, 413)
         Me.ButtonSetRepoPassword.Name = "ButtonSetRepoPassword"
         Me.ButtonSetRepoPassword.Size = New System.Drawing.Size(289, 51)
         Me.ButtonSetRepoPassword.TabIndex = 16
@@ -240,7 +243,7 @@ Partial Class MainForm
         Me.TabControl1.Location = New System.Drawing.Point(4, 4)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(746, 455)
+        Me.TabControl1.Size = New System.Drawing.Size(928, 496)
         Me.TabControl1.TabIndex = 17
         '
         'TabPage1
@@ -258,7 +261,7 @@ Partial Class MainForm
         Me.TabPage1.Location = New System.Drawing.Point(4, 22)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(738, 429)
+        Me.TabPage1.Size = New System.Drawing.Size(920, 470)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "Файловая ИБ"
         Me.TabPage1.UseVisualStyleBackColor = True
@@ -267,7 +270,7 @@ Partial Class MainForm
         '
         Me.LabelDatabaseVersion.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.LabelDatabaseVersion.AutoSize = True
-        Me.LabelDatabaseVersion.Location = New System.Drawing.Point(11, 355)
+        Me.LabelDatabaseVersion.Location = New System.Drawing.Point(11, 396)
         Me.LabelDatabaseVersion.Name = "LabelDatabaseVersion"
         Me.LabelDatabaseVersion.Size = New System.Drawing.Size(132, 13)
         Me.LabelDatabaseVersion.TabIndex = 26
@@ -277,7 +280,7 @@ Partial Class MainForm
         '
         Me.NewPassword.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.NewPassword.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.NewPassword.Location = New System.Drawing.Point(128, 402)
+        Me.NewPassword.Location = New System.Drawing.Point(128, 443)
         Me.NewPassword.Name = "NewPassword"
         Me.NewPassword.Size = New System.Drawing.Size(144, 22)
         Me.NewPassword.TabIndex = 24
@@ -288,7 +291,7 @@ Partial Class MainForm
         Me.Label2.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(9, 404)
+        Me.Label2.Location = New System.Drawing.Point(9, 445)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(113, 16)
         Me.Label2.TabIndex = 25
@@ -300,10 +303,10 @@ Partial Class MainForm
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TextBox3.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox3.Font = New System.Drawing.Font("Arial", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox3.Location = New System.Drawing.Point(9, 372)
+        Me.TextBox3.Location = New System.Drawing.Point(9, 413)
         Me.TextBox3.Multiline = True
         Me.TextBox3.Name = "TextBox3"
-        Me.TextBox3.Size = New System.Drawing.Size(431, 29)
+        Me.TextBox3.Size = New System.Drawing.Size(613, 29)
         Me.TextBox3.TabIndex = 23
         Me.TextBox3.Text = "Файл информационной базы не должен быть открыт никакими другими приложениями."
         '
@@ -312,7 +315,7 @@ Partial Class MainForm
         Me.ButtonChangePwdFileDB.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.ButtonChangePwdFileDB.Font = New System.Drawing.Font("Arial", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonChangePwdFileDB.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer))
-        Me.ButtonChangePwdFileDB.Location = New System.Drawing.Point(443, 373)
+        Me.ButtonChangePwdFileDB.Location = New System.Drawing.Point(625, 414)
         Me.ButtonChangePwdFileDB.Name = "ButtonChangePwdFileDB"
         Me.ButtonChangePwdFileDB.Size = New System.Drawing.Size(289, 51)
         Me.ButtonChangePwdFileDB.TabIndex = 22
@@ -331,6 +334,8 @@ Partial Class MainForm
         '
         'TabPage2
         '
+        Me.TabPage2.Controls.Add(Me.Label7)
+        Me.TabPage2.Controls.Add(Me.cbDBType)
         Me.TabPage2.Controls.Add(Me.TextBox2)
         Me.TabPage2.Controls.Add(Me.ButtonChangePassSQL)
         Me.TabPage2.Controls.Add(Me.Label6)
@@ -342,9 +347,9 @@ Partial Class MainForm
         Me.TabPage2.Location = New System.Drawing.Point(4, 22)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(738, 429)
+        Me.TabPage2.Size = New System.Drawing.Size(920, 470)
         Me.TabPage2.TabIndex = 1
-        Me.TabPage2.Text = "Клиент-серверная ИБ (MSSQL)"
+        Me.TabPage2.Text = "Клиент-серверная ИБ"
         Me.TabPage2.UseVisualStyleBackColor = True
         '
         'TextBox2
@@ -353,10 +358,10 @@ Partial Class MainForm
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox2.Font = New System.Drawing.Font("Arial", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox2.Location = New System.Drawing.Point(9, 372)
+        Me.TextBox2.Location = New System.Drawing.Point(9, 413)
         Me.TextBox2.Multiline = True
         Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(428, 24)
+        Me.TextBox2.Size = New System.Drawing.Size(610, 24)
         Me.TextBox2.TabIndex = 22
         Me.TextBox2.Text = "Монопольного режима доступа к базе не требуется"
         '
@@ -365,7 +370,7 @@ Partial Class MainForm
         Me.ButtonChangePassSQL.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.ButtonChangePassSQL.Font = New System.Drawing.Font("Arial", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ButtonChangePassSQL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(64, Byte), Integer), CType(CType(0, Byte), Integer))
-        Me.ButtonChangePassSQL.Location = New System.Drawing.Point(443, 372)
+        Me.ButtonChangePassSQL.Location = New System.Drawing.Point(625, 414)
         Me.ButtonChangePassSQL.Name = "ButtonChangePassSQL"
         Me.ButtonChangePassSQL.Size = New System.Drawing.Size(289, 51)
         Me.ButtonChangePassSQL.TabIndex = 21
@@ -376,17 +381,17 @@ Partial Class MainForm
         '
         Me.Label6.AutoSize = True
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(10, 6)
+        Me.Label6.Location = New System.Drawing.Point(9, 29)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(293, 16)
+        Me.Label6.Size = New System.Drawing.Size(297, 16)
         Me.Label6.TabIndex = 19
-        Me.Label6.Text = "Строка соединения с базой данных 1С"
+        Me.Label6.Text = "Строка соединения с базой данных 1С:"
         '
         'NewPassSQL
         '
         Me.NewPassSQL.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.NewPassSQL.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.NewPassSQL.Location = New System.Drawing.Point(128, 401)
+        Me.NewPassSQL.Location = New System.Drawing.Point(128, 443)
         Me.NewPassSQL.Name = "NewPassSQL"
         Me.NewPassSQL.Size = New System.Drawing.Size(144, 22)
         Me.NewPassSQL.TabIndex = 17
@@ -397,7 +402,7 @@ Partial Class MainForm
         Me.Label5.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Label5.AutoSize = True
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(9, 403)
+        Me.Label5.Location = New System.Drawing.Point(9, 445)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(113, 16)
         Me.Label5.TabIndex = 18
@@ -410,9 +415,10 @@ Partial Class MainForm
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.SQLUserList.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.ColumnHeader1, Me.ColumnHeader2, Me.ColumnHeader3, Me.ColumnHeader4, Me.ColumnHeader5})
         Me.SQLUserList.FullRowSelect = True
-        Me.SQLUserList.Location = New System.Drawing.Point(9, 50)
+        Me.SQLUserList.HideSelection = False
+        Me.SQLUserList.Location = New System.Drawing.Point(9, 75)
         Me.SQLUserList.Name = "SQLUserList"
-        Me.SQLUserList.Size = New System.Drawing.Size(723, 319)
+        Me.SQLUserList.Size = New System.Drawing.Size(905, 336)
         Me.SQLUserList.TabIndex = 20
         Me.SQLUserList.UseCompatibleStateImageBehavior = False
         Me.SQLUserList.View = System.Windows.Forms.View.Details
@@ -420,22 +426,22 @@ Partial Class MainForm
         'ColumnHeader1
         '
         Me.ColumnHeader1.Text = "GUID"
-        Me.ColumnHeader1.Width = 158
+        Me.ColumnHeader1.Width = 232
         '
         'ColumnHeader2
         '
         Me.ColumnHeader2.Text = "Имя"
-        Me.ColumnHeader2.Width = 164
+        Me.ColumnHeader2.Width = 183
         '
         'ColumnHeader3
         '
         Me.ColumnHeader3.Text = "Полное имя"
-        Me.ColumnHeader3.Width = 147
+        Me.ColumnHeader3.Width = 199
         '
         'ColumnHeader4
         '
         Me.ColumnHeader4.Text = "Хеш пароля"
-        Me.ColumnHeader4.Width = 164
+        Me.ColumnHeader4.Width = 220
         '
         'ColumnHeader5
         '
@@ -455,7 +461,7 @@ Partial Class MainForm
         Me.TabPage3.Location = New System.Drawing.Point(4, 22)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(738, 429)
+        Me.TabPage3.Size = New System.Drawing.Size(920, 470)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "Хранилище конфигурации"
         Me.TabPage3.UseVisualStyleBackColor = True
@@ -464,7 +470,7 @@ Partial Class MainForm
         '
         Me.LabelDatabaseVersionRepo.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.LabelDatabaseVersionRepo.AutoSize = True
-        Me.LabelDatabaseVersionRepo.Location = New System.Drawing.Point(12, 357)
+        Me.LabelDatabaseVersionRepo.Location = New System.Drawing.Point(12, 398)
         Me.LabelDatabaseVersionRepo.Name = "LabelDatabaseVersionRepo"
         Me.LabelDatabaseVersionRepo.Size = New System.Drawing.Size(132, 13)
         Me.LabelDatabaseVersionRepo.TabIndex = 27
@@ -476,10 +482,10 @@ Partial Class MainForm
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox1.Font = New System.Drawing.Font("Arial", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox1.Location = New System.Drawing.Point(6, 372)
+        Me.TextBox1.Location = New System.Drawing.Point(6, 413)
         Me.TextBox1.Multiline = True
         Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(431, 50)
+        Me.TextBox1.Size = New System.Drawing.Size(613, 50)
         Me.TextBox1.TabIndex = 18
         Me.TextBox1.Text = "Файл хранилища конфигурации не должен быть открыт никакими другими приложениями."
         '
@@ -490,9 +496,10 @@ Partial Class MainForm
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.RepoUserList.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.RepoUserGUID, Me.RepoUserName, Me.RepoHasPwd, Me.RepoAdmin})
         Me.RepoUserList.FullRowSelect = True
+        Me.RepoUserList.HideSelection = False
         Me.RepoUserList.Location = New System.Drawing.Point(9, 50)
         Me.RepoUserList.Name = "RepoUserList"
-        Me.RepoUserList.Size = New System.Drawing.Size(723, 304)
+        Me.RepoUserList.Size = New System.Drawing.Size(905, 345)
         Me.RepoUserList.TabIndex = 17
         Me.RepoUserList.UseCompatibleStateImageBehavior = False
         Me.RepoUserList.View = System.Windows.Forms.View.Details
@@ -521,7 +528,7 @@ Partial Class MainForm
         '
         Me.LinkLabel1.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.LinkLabel1.AutoSize = True
-        Me.LinkLabel1.Location = New System.Drawing.Point(230, 460)
+        Me.LinkLabel1.Location = New System.Drawing.Point(230, 501)
         Me.LinkLabel1.Name = "LinkLabel1"
         Me.LinkLabel1.Size = New System.Drawing.Size(282, 13)
         Me.LinkLabel1.TabIndex = 18
@@ -532,7 +539,7 @@ Partial Class MainForm
         '
         Me.Label3.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(3, 460)
+        Me.Label3.Location = New System.Drawing.Point(3, 501)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(227, 13)
         Me.Label3.TabIndex = 19
@@ -542,19 +549,38 @@ Partial Class MainForm
         '
         Me.LinkLabel2.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.LinkLabel2.AutoSize = True
-        Me.LinkLabel2.Location = New System.Drawing.Point(649, 460)
+        Me.LinkLabel2.Location = New System.Drawing.Point(831, 501)
         Me.LinkLabel2.Name = "LinkLabel2"
         Me.LinkLabel2.Size = New System.Drawing.Size(102, 13)
         Me.LinkLabel2.TabIndex = 18
         Me.LinkLabel2.TabStop = True
         Me.LinkLabel2.Text = "© Aleksey.Bochkov"
         '
+        'cbDBType
+        '
+        Me.cbDBType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cbDBType.FormattingEnabled = True
+        Me.cbDBType.Items.AddRange(New Object() {"Microsoft SQL Server", "PostgreSQL Server"})
+        Me.cbDBType.Location = New System.Drawing.Point(181, 7)
+        Me.cbDBType.Name = "cbDBType"
+        Me.cbDBType.Size = New System.Drawing.Size(185, 21)
+        Me.cbDBType.TabIndex = 23
+        '
+        'Label7
+        '
+        Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label7.Location = New System.Drawing.Point(9, 9)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(166, 17)
+        Me.Label7.TabIndex = 24
+        Me.Label7.Text = "Тип базы данных:"
+        '
         'MainForm
         '
         Me.AccessibleRole = System.Windows.Forms.AccessibleRole.Application
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(752, 475)
+        Me.ClientSize = New System.Drawing.Size(934, 516)
         Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.LinkLabel2)
         Me.Controls.Add(Me.LinkLabel1)
@@ -625,4 +651,6 @@ Partial Class MainForm
     Friend WithEvents LinkLabel2 As LinkLabel
     Friend WithEvents LabelDatabaseVersion As Label
     Friend WithEvents LabelDatabaseVersionRepo As Label
+    Friend WithEvents Label7 As Label
+    Friend WithEvents cbDBType As ComboBox
 End Class
