@@ -18,7 +18,6 @@ Public Class MainForm
         Dim AdmRole As String
         Dim KeySize As Integer
         Dim KeyData As Byte()
-        Dim PostgresExtraSymbol As String
     End Structure
 
     Dim SQLUsers As List(Of SQLUser) = New List(Of SQLUser)
