@@ -193,13 +193,21 @@ Public Class MainForm
                     SQLUser.IDStr = New Guid(SQLUser.ID).ToString
                     SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
 
-                    Dim AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+                    Dim AuthStructure As List(Of Object)
+
+                    If Not SQLUser.DataStr(0) = "{"c Then
+                        'postgres in my test has weird first symbol
+                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr.Substring(1))
+                    Else
+                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+                    End If
 
                     If AuthStructure(0)(7).ToString = "0" Then
                         'нет авторизации 1С
                         SQLUser.PassHash = "нет авторизации 1С"
                     Else
-                        If AuthStructure(0).Count = 17 Then
+                        'ugh.. need to handle it properly
+                        If AuthStructure(0).Count = 17 Or AuthStructure(0).Count = 19 Or AuthStructure(0).Count = 21 Then
                             SQLUser.PassHash = AuthStructure(0)(11).ToString
                             SQLUser.PassHash2 = AuthStructure(0)(12).ToString
                         Else
@@ -302,7 +310,7 @@ Public Class MainForm
                         SQLUser.PassHash = "нет авторизации 1С"
                     Else
                         Try
-                            If AuthStructure(0).Count = 17 Or AuthStructure(0).Count = 19 Then
+                            If AuthStructure(0).Count = 17 Or AuthStructure(0).Count = 19 Or AuthStructure(0).Count = 21 Then
                                 SQLUser.PassHash = AuthStructure(0)(11).ToString
                                 SQLUser.PassHash2 = AuthStructure(0)(12).ToString
                             Else
