@@ -26,7 +26,7 @@ Public Class MainForm
 
         InitializeComponent()
 
-        FileIB.Text = "C:\Users\1C\1Cv8.1CD"
+        FileIB.Text = "C:\Users\alboc\OneDrive\Documents\InfoBase\1Cv8.1CD"
 
         ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup"
 
@@ -51,13 +51,12 @@ Public Class MainForm
 
     Private Shared Function ShowWarning() As Boolean
 
-        'TEMP
-        'Return True
+        Return True
 
-        Dim Rez = MsgBox("Запрещается использование приложения для несанкционированного доступа к данным!" + vbNewLine +
-               "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + vbNewLine +
-               "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + vbNewLine +
-               "Несанкционированный доступ к информации преследуются по ст. 1301 Гражданского кодекса РФ, ст. 7.12 Кодекса Российской Федерации " + vbNewLine +
+        Dim Rez = MsgBox("Запрещается использование приложения для несанкционированного доступа к данным! " +
+               "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " +
+               "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных. " +
+               "Несанкционированный доступ к информации преследуются по ст. 1301 Гражданского кодекса РФ, ст. 7.12 Кодекса Российской Федерации " +
                "об административных правонарушениях, ст. 146 Уголовного кодекса РФ." + vbNewLine +
                "Продолжить?",
                          MsgBoxStyle.YesNo, "Правила использования")
@@ -118,7 +117,9 @@ Public Class MainForm
                 Continue For
             End If
 
-            Dim AuthStructure = ParserServices.ParsesClass.ParseString(Row("DATA"))
+            Dim AuthStructure = ParserServices.ParserClass.ParseString(Row("DATA"))
+
+            AuthStructure = AuthStructure(0)
 
             Dim PassHash = AuthStructure(0)(11)
 
@@ -197,9 +198,9 @@ Public Class MainForm
 
                     If Not SQLUser.DataStr(0) = "{"c Then
                         'postgres in my test has weird first symbol
-                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr.Substring(1))
+                        AuthStructure = ParserServices.ParserClass.ParseString(SQLUser.DataStr.Substring(1))
                     Else
-                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+                        AuthStructure = ParserServices.ParserClass.ParseString(SQLUser.DataStr)
                     End If
 
                     If AuthStructure(0)(7).ToString = "0" Then
@@ -300,9 +301,9 @@ Public Class MainForm
 
                     If Not SQLUser.DataStr(0) = "{"c Then
                         'postgres in my test has weird first symbol
-                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr.Substring(1))
+                        AuthStructure = ParserServices.ParserClass.ParseString(SQLUser.DataStr.Substring(1))
                     Else
-                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
+                        AuthStructure = ParserServices.ParserClass.ParseString(SQLUser.DataStr)
                     End If
 
                     If AuthStructure(0)(7).ToString = "0" Then

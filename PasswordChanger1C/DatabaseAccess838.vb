@@ -64,7 +64,7 @@ Module DatabaseAccess838
 
             End While
 
-            Dim TableDefinition = ParserServices.ParsesClass.ParseString(StrDefinition)
+            Dim TableDefinition = ParserServices.ParserClass.ParseString(StrDefinition)
             If TableDefinition(0)(0).ToString.ToUpper = """" + TableUsersName + """" Then
                 Page.TableDefinition = StrDefinition
                 CommonModule.ParseTableDefinition(Page)

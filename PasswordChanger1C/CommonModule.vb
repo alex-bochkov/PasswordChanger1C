@@ -101,7 +101,7 @@ Module CommonModule
 
     Sub ParseTableDefinition(ByRef PageHeader As PageParams)
 
-        Dim ParsedString = ParserServices.ParsesClass.ParseString(PageHeader.TableDefinition)
+        Dim ParsedString = ParserServices.ParserClass.ParseString(PageHeader.TableDefinition)
 
         PageHeader.Fields = New List(Of TableFields)
 

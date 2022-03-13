@@ -1,6 +1,6 @@
 ﻿Namespace ParserServices
 
-    Public Class ParsesClass
+    Public Class ParserClass
 
         Public Shared Function ParseString(Str As String) As List(Of Object)
 

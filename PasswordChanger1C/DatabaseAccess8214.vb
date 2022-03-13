@@ -147,7 +147,7 @@ Module DatabaseAccess8214
             TableDescr = TableDescr + Encoding.UTF8.GetString(bytesBlock, i * 2, 1)
         Next
 
-        Dim ParsedString = ParserServices.ParsesClass.ParseString(TableDescr)
+        Dim ParsedString = ParserServices.ParserClass.ParseString(TableDescr)
 
         Dim RowSize = 1
 
