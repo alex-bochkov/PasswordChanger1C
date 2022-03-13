@@ -51,7 +51,7 @@ Public Class MainForm
 
     Private Shared Function ShowWarning() As Boolean
 
-        Return True
+        'Return True
 
         Dim Rez = MsgBox("Запрещается использование приложения для несанкционированного доступа к данным! " +
                "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " +
