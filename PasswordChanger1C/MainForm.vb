@@ -664,13 +664,13 @@ Public Class MainForm
 
     Private Sub LinkLabel2_Click(sender As Object, e As EventArgs) Handles LinkLabel2.Click
 
-        Process.Start("https://github.com/alekseybochkov/")
+        Process.Start("https://github.com/alex-bochkov/")
 
     End Sub
 
     Private Sub LinkLabel1_Click(sender As Object, e As EventArgs) Handles LinkLabel1.Click
 
-        Process.Start("https://github.com/alekseybochkov/PasswordChanger1C")
+        Process.Start("https://github.com/alex-bochkov/PasswordChanger1C")
 
     End Sub
 

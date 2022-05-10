@@ -182,7 +182,7 @@ Partial Class MainForm
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label4.Location = New System.Drawing.Point(12, 6)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(265, 16)
+        Me.Label4.Size = New System.Drawing.Size(264, 16)
         Me.Label4.TabIndex = 10
         Me.Label4.Text = "Файл хранилища конфигурации 1С"
         '
@@ -294,7 +294,7 @@ Partial Class MainForm
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label2.Location = New System.Drawing.Point(9, 445)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(113, 16)
+        Me.Label2.Size = New System.Drawing.Size(112, 16)
         Me.Label2.TabIndex = 25
         Me.Label2.Text = "Новый пароль"
         '
@@ -329,7 +329,7 @@ Partial Class MainForm
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.Location = New System.Drawing.Point(10, 6)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(244, 16)
+        Me.Label1.Size = New System.Drawing.Size(243, 16)
         Me.Label1.TabIndex = 20
         Me.Label1.Text = "Файл информационной базы 1С"
         '
@@ -403,7 +403,7 @@ Partial Class MainForm
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label6.Location = New System.Drawing.Point(9, 29)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(297, 16)
+        Me.Label6.Size = New System.Drawing.Size(296, 16)
         Me.Label6.TabIndex = 19
         Me.Label6.Text = "Строка соединения с базой данных 1С:"
         '
@@ -424,7 +424,7 @@ Partial Class MainForm
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label5.Location = New System.Drawing.Point(9, 445)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(113, 16)
+        Me.Label5.Size = New System.Drawing.Size(112, 16)
         Me.Label5.TabIndex = 18
         Me.Label5.Text = "Новый пароль"
         '
@@ -550,10 +550,10 @@ Partial Class MainForm
         Me.LinkLabel1.AutoSize = True
         Me.LinkLabel1.Location = New System.Drawing.Point(230, 501)
         Me.LinkLabel1.Name = "LinkLabel1"
-        Me.LinkLabel1.Size = New System.Drawing.Size(282, 13)
+        Me.LinkLabel1.Size = New System.Drawing.Size(268, 13)
         Me.LinkLabel1.TabIndex = 18
         Me.LinkLabel1.TabStop = True
-        Me.LinkLabel1.Text = "https://github.com/alekseybochkov/PasswordChanger1C"
+        Me.LinkLabel1.Text = "https://github.com/alex-bochkov/PasswordChanger1C"
         '
         'Label3
         '
@@ -571,10 +571,10 @@ Partial Class MainForm
         Me.LinkLabel2.AutoSize = True
         Me.LinkLabel2.Location = New System.Drawing.Point(831, 501)
         Me.LinkLabel2.Name = "LinkLabel2"
-        Me.LinkLabel2.Size = New System.Drawing.Size(102, 13)
+        Me.LinkLabel2.Size = New System.Drawing.Size(85, 13)
         Me.LinkLabel2.TabIndex = 18
         Me.LinkLabel2.TabStop = True
-        Me.LinkLabel2.Text = "© Aleksey.Bochkov"
+        Me.LinkLabel2.Text = "© Alex Bochkov"
         '
         'MainForm
         '

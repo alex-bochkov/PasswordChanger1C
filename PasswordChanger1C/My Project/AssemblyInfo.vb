@@ -9,10 +9,10 @@ Imports System.Runtime.InteropServices
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("Password changer for 1C:Enterprise")>
-<Assembly: AssemblyDescription("Изменение паролей пользователей для баз 1С")>
-<Assembly: AssemblyCompany("Aleksey Bochkov")>
+<Assembly: AssemblyDescription("")>
+<Assembly: AssemblyCompany("Alex Bochkov")>
 <Assembly: AssemblyProduct("Password changer for 1C:Enterprise")>
-<Assembly: AssemblyCopyright("Copyright © Aleksey Bochkov")>
+<Assembly: AssemblyCopyright("Copyright © Alex Bochkov")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.1.0.0")>
-<Assembly: AssemblyFileVersion("1.1.0.0")>
+<Assembly: AssemblyVersion("1.2.0.0")>
+<Assembly: AssemblyFileVersion("1.2.0.0")>
